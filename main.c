@@ -59,8 +59,6 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
             return 1;
         } else if (abs(curr.x - next.x) == 2 && abs(curr.y - next.y) == 1) {
             return 1;
-        } else {
-            return 0;
         }
         // 가능하다면 return 1;
     }
@@ -77,6 +75,7 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
                     return 0;
                 }
             }
+            return 1;
         }
         else if (curr.y == next.y) {
             int x = curr.x < next.x ? 1 : -1;
@@ -90,8 +89,8 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
                     return 0;
                 }
             }
+            return 1;
         }
-        return 1;
         // 가능하다면 return 1;
     }
     else if (type=='B'){ // 비숍
@@ -111,8 +110,6 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
                 }
             }
             return 1;
-        } else {
-            return 0;
         }
         // 가능하다면 return 1;
     }
@@ -250,7 +247,7 @@ int Checkmate(){ // 체크메이트 판별
     for (int i=0;i<9;i++){
         if (!chk[i])
             return 0;
-    }`
+    }
     return 1;
 }
 */
