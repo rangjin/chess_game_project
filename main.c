@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
 // 폰=P, 나이트=N, 룩=R, 비숍=B, 퀸=Q, 킹=K;
 
@@ -57,9 +58,46 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
         // 가능하다면 return 1;
     }
     else if (type=='R'){ // 룩
+        if (curr.x == next.x) {
+            int y = curr.y < next.y ? 1 : -1;
+            int testy = curr.y;
+            while (testy != next.y) {
+                testy += y;
+                if (arr[curr.x][testy].type != 0) {
+                    return 0;
+                }
+            }
+        }
+        else if (curr.y == next.y) {
+            int x = curr.x < next.x ? 1 : -1;
+            int testx = curr.x;
+            while (testx != next.x) {
+                testx += x;
+                if (arr[testx][curr.y].type != 0) {
+                    return 0;
+                }
+            }
+        }
+        return 1;
         // 가능하다면 return 1;
     }
     else if (type=='B'){ // 비숍
+        if (abs(curr.x - next.x) == abs(curr.y - next.y)) {
+            int x, y;
+            x = curr.x < next.x ? 1 : -1;
+            y = curr.y < next.y ? 1 : -1;
+            int testx = curr.x, testy = curr.y;
+            while (testx != next.x && testy != curr.y) {
+                testx += x;
+                testy += y;
+                if (arr[testx][testy].type != 0) {
+                    return 0;
+                }
+            }
+            return 1;
+        } else {
+            return 0;
+        }
         // 가능하다면 return 1;
     }
     else if (type=='Q'){ // 퀸
