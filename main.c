@@ -61,9 +61,12 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
         if (curr.x == next.x) {
             int y = curr.y < next.y ? 1 : -1;
             int testy = curr.y;
-            while (testy != next.y) {
+            while (1) {
                 testy += y;
-                if (arr[curr.x][testy].type != 0) {
+                if (testy == next.y) {
+                    break;
+                }
+                else if (arr[curr.x][testy].type != 0) {
                     return 0;
                 }
             }
@@ -71,9 +74,12 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
         else if (curr.y == next.y) {
             int x = curr.x < next.x ? 1 : -1;
             int testx = curr.x;
-            while (testx != next.x) {
+            while (1) {
                 testx += x;
-                if (arr[testx][curr.y].type != 0) {
+                if (testx == next.x) {
+                    break;
+                }
+                else if (arr[testx][curr.y].type != 0) {
                     return 0;
                 }
             }
@@ -87,9 +93,12 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
             x = curr.x < next.x ? 1 : -1;
             y = curr.y < next.y ? 1 : -1;
             int testx = curr.x, testy = curr.y;
-            while (testx != next.x && testy != curr.y) {
+            while (1) {
                 testx += x;
                 testy += y;
+                if (testx == next.x && testy == next.y) {
+                    break;
+                }
                 if (arr[testx][testy].type != 0) {
                     return 0;
                 }
