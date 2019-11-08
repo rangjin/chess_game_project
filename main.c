@@ -55,6 +55,13 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
         // 가능하다면 return 1;
     }
     else if (type=='N'){ // 나이트
+        if (abs(curr.x - next.x) == 1 && abs(curr.y - next.y) == 2) {
+            return 1;
+        } else if (abs(curr.x - next.x) == 2 && abs(curr.y - next.y) == 1) {
+            return 1;
+        } else {
+            return 0;
+        }
         // 가능하다면 return 1;
     }
     else if (type=='R'){ // 룩
