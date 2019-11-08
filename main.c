@@ -1,26 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-// Æù=P, ³ªÀÌÆ®=N, ·è=R, ºñ¼ó=B, Äı=Q, Å·=K;
+// í°=P, ë‚˜ì´íŠ¸=N, ë£©=R, ë¹„ìˆ=B, í€¸=Q, í‚¹=K;
 
 typedef struct xy{
-    int x, y; // xyÃà ÁÂÇ¥
+    int x, y; // xyì¶• ì¢Œí‘œ
 }xy;
 
 typedef struct UNIT{
-    int move; // ÀÌµ¿È½¼ö
-    char type, WB;// ¸»ÀÇÁ¾·ù, Èò°Ë
+    int move; // ì´ë™íšŸìˆ˜
+    char type, WB;// ë§ì˜ì¢…ë¥˜, í°ê²€
 }UNIT;
 
-UNIT arr[10][10]; // Ã¼½ºÆÇ
+UNIT arr[10][10]; // ì²´ìŠ¤íŒ
 char turn[3]="WB";
-int tmp=0; // ÅÏ Ç¥½Ã 1=°Ë, 0=Èò
+int tmp=0; // í„´ í‘œì‹œ 1=ê²€, 0=í°
 
-void Setcolor (int text, int back){ // ±ÛÀÚ»ö,  ¹è°æ»ö ¹Ù²Ù±â
+void Setcolor (int text, int back){ // ê¸€ììƒ‰,  ë°°ê²½ìƒ‰ ë°”ê¾¸ê¸°
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),text|(back<<4));
 }
 
-void Setting(){ // ±âº» ¸» À§Ä¡
+void Setting(){ // ê¸°ë³¸ ë§ ìœ„ì¹˜
     char a[8]={'R','N','B','Q','K','B','N','R'};
     for (int i=0;i<=9;i++){
         for (int j=0;j<=9;j++)
@@ -34,9 +34,9 @@ void Setting(){ // ±âº» ¸» À§Ä¡
     }
 }
 
-int Check(xy curr, xy next, char type){ // °¢ ¸»ÀÌ ÀÌµ¿°¡´ÉÇÑÁö Ã¼Å©
-    if (type=='P'){ // Æù
-        if (arr[curr.x][curr.y].WB=='W'){ // Èò»ö
+int Check(xy curr, xy next, char type){ // ê° ë§ì´ ì´ë™ê°€ëŠ¥í•œì§€ ì²´í¬
+    if (type=='P'){ // í°
+        if (arr[curr.x][curr.y].WB=='W'){ // í°ìƒ‰
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==-2 && curr.y==next.y)
                 return 1;
             if (next.x-curr.x==-1 && curr.y==next.y)
@@ -44,7 +44,7 @@ int Check(xy curr, xy next, char type){ // °¢ ¸»ÀÌ ÀÌµ¿°¡´ÉÇÑÁö Ã¼Å©
             if (arr[next.x][next.y].WB=='B' && next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1))
                 return 1;
         }
-        if (arr[curr.x][curr.y].WB=='B'){ // °ËÀº»ö
+        if (arr[curr.x][curr.y].WB=='B'){ // ê²€ì€ìƒ‰
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==2 && curr.y==next.y)
                 return 1;
             if (next.x-curr.x==1 && curr.y==next.y)
@@ -52,9 +52,9 @@ int Check(xy curr, xy next, char type){ // °¢ ¸»ÀÌ ÀÌµ¿°¡´ÉÇÑÁö Ã¼Å©
             if (arr[next.x][next.y].WB=='W' && next.x-curr.x==1 && (next.y-curr.y==1 || next.y-curr.y==-1))
                 return 1;
         }
-        // °¡´ÉÇÏ´Ù¸é return 1;
+        // ê°€ëŠ¥í•˜ë‹¤ë©´ return 1;
     }
-    else if (type=='N'){ // ³ªÀÌÆ®
+    else if (type=='N'){ // ë‚˜ì´íŠ¸
         if (abs(curr.x - next.x) == 1 && abs(curr.y - next.y) == 2) {
             return 1;
         } else if (abs(curr.x - next.x) == 2 && abs(curr.y - next.y) == 1) {
@@ -62,9 +62,9 @@ int Check(xy curr, xy next, char type){ // °¢ ¸»ÀÌ ÀÌµ¿°¡´ÉÇÑÁö Ã¼Å©
         } else {
             return 0;
         }
-        // °¡´ÉÇÏ´Ù¸é return 1;
+        // ê°€ëŠ¥í•˜ë‹¤ë©´ return 1;
     }
-    else if (type=='R'){ // ·è
+    else if (type=='R'){ // ë£©
         if (curr.x == next.x) {
             int y = curr.y < next.y ? 1 : -1;
             int testy = curr.y;
@@ -92,9 +92,9 @@ int Check(xy curr, xy next, char type){ // °¢ ¸»ÀÌ ÀÌµ¿°¡´ÉÇÑÁö Ã¼Å©
             }
         }
         return 1;
-        // °¡´ÉÇÏ´Ù¸é return 1;
+        // ê°€ëŠ¥í•˜ë‹¤ë©´ return 1;
     }
-    else if (type=='B'){ // ºñ¼ó
+    else if (type=='B'){ // ë¹„ìˆ
         if (abs(curr.x - next.x) == abs(curr.y - next.y)) {
             int x, y;
             x = curr.x < next.x ? 1 : -1;
@@ -114,25 +114,25 @@ int Check(xy curr, xy next, char type){ // °¢ ¸»ÀÌ ÀÌµ¿°¡´ÉÇÑÁö Ã¼Å©
         } else {
             return 0;
         }
-        // °¡´ÉÇÏ´Ù¸é return 1;
+        // ê°€ëŠ¥í•˜ë‹¤ë©´ return 1;
     }
-    else if (type=='Q'){ // Äı
-        // °¡´ÉÇÏ´Ù¸é return 1;
+    else if (type=='Q'){ // í€¸
+        // ê°€ëŠ¥í•˜ë‹¤ë©´ return 1;
     }
-    else if (type=='K'){ // Å·
-        // °¡´ÉÇÏ´Ù¸é return 1;
+    else if (type=='K'){ // í‚¹
+        // ê°€ëŠ¥í•˜ë‹¤ë©´ return 1;
     }
     return 0;
 }
 
-int Move(xy ab, char c){ //ÀÌµ¿
+int Move(xy ab, char c){ //ì´ë™
     xy curr={ab.x/10,ab.x%10}, next={ab.y/10,ab.y%10};
     if (c!=arr[curr.x][curr.y].WB){
-        printf("ÀÚ½ÅÀÇ ¸»ÀÌ ¾Æ´Õ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØ ÁÖ¼¼¿ä.\n");
+        printf("ìì‹ ì˜ ë§ì´ ì•„ë‹™ë‹ˆë‹¤. ë‹¤ì‹œ ì…ë ¥í•´ ì£¼ì„¸ìš”.\n");
         return 1;
     }
     if (arr[curr.x][curr.y].WB==arr[next.x][next.y].WB){
-        printf("ÀÌ¹Ì ¾Æ±º¸»ÀÌ Á¸ÀçÇÏ´Â À§Ä¡ÀÔ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØ ÁÖ¼¼¿ä.\n");
+        printf("ì´ë¯¸ ì•„êµ°ë§ì´ ì¡´ì¬í•˜ëŠ” ìœ„ì¹˜ì…ë‹ˆë‹¤. ë‹¤ì‹œ ì…ë ¥í•´ ì£¼ì„¸ìš”.\n");
         return 1;
     }
     if (Check(curr,next,arr[curr.x][curr.y].type)){
@@ -141,16 +141,16 @@ int Move(xy ab, char c){ //ÀÌµ¿
         arr[curr.x][curr.y].move=0;
         arr[curr.x][curr.y].type=0;
         arr[curr.x][curr.y].WB=0;
-        printf("%c%dÀÇ ¸»ÀÌ %c%d·Î ÀÌµ¿µÇ¾ú½À´Ï´Ù.\n",ab.x/10-1+'A',ab.x%10,ab.y/10-1+'A',ab.y%10);
+        printf("%c%dì˜ ë§ì´ %c%dë¡œ ì´ë™ë˜ì—ˆìŠµë‹ˆë‹¤.\n",ab.x/10-1+'A',ab.x%10,ab.y/10-1+'A',ab.y%10);
         return 0;
     }
     else{
-        printf("ºÒ°¡´ÉÇÑ À§Ä¡ÀÔ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØ ÁÖ¼¼¿ä.\n");
+        printf("ë¶ˆê°€ëŠ¥í•œ ìœ„ì¹˜ì…ë‹ˆë‹¤. ë‹¤ì‹œ ì…ë ¥í•´ ì£¼ì„¸ìš”.\n");
         return 1;
     }
 }
 
-xy Scan(){ // ÀÔ·Â
+xy Scan(){ // ì…ë ¥
     char a, b;
     xy ab;
     scanf(" %c%d %c%d", &a, &ab.x, &b, &ab.y);
@@ -165,7 +165,7 @@ xy Scan(){ // ÀÔ·Â
     return ab;
 }
 
-void Print(){// Ãâ·Â
+void Print(){// ì¶œë ¥
     printf("    [1] [2] [3] [4] [5] [6] [7] [8]\n");
     printf("   #################################\n");
     for (int i=1;i<=8;i++){
@@ -192,7 +192,8 @@ void Print(){// Ãâ·Â
     printf("    [1] [2] [3] [4] [5] [6] [7] [8]\n");
 }
 
-int Stalemate(){ // ½ºÅ×ÀÏ¸ŞÀÌÆ® ÆÇº°
+/*
+int Stalemate(){ // ìŠ¤í…Œì¼ë©”ì´íŠ¸ íŒë³„
     xy king={0,0};
     int chk[8]={0}, dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){
@@ -222,8 +223,9 @@ int Stalemate(){ // ½ºÅ×ÀÏ¸ŞÀÌÆ® ÆÇº°
     }
     return 1;
 }
-
-int Checkmate(){ // Ã¼Å©¸ŞÀÌÆ® ÆÇº°
+*/
+/*
+int Checkmate(){ // ì²´í¬ë©”ì´íŠ¸ íŒë³„
     xy king={0,0};
     int chk[9]={0}, dir[9][2]={{1,1},{1,0},{1,-1},{0,1},{0,0},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){
@@ -248,9 +250,10 @@ int Checkmate(){ // Ã¼Å©¸ŞÀÌÆ® ÆÇº°
     for (int i=0;i<9;i++){
         if (!chk[i])
             return 0;
-    }
+    }`
     return 1;
 }
+*/
 
 int main(){
     Setting();
@@ -258,32 +261,35 @@ int main(){
         int a;
         Print();
         if (tmp)
-            printf("°ËÀº»öÀÇ ÅÏÀÔ´Ï´Ù.\n");
+            printf("ê²€ì€ìƒ‰ì˜ í„´ì…ë‹ˆë‹¤.\n");
         else
-            printf("Èò»öÀÇ ÅÏÀÔ´Ï´Ù.\n");
-        printf("¸» ÀÌµ¿ : 0, Ç×º¹ÇÏ±â : 1\n");
+            printf("í°ìƒ‰ì˜ í„´ì…ë‹ˆë‹¤.\n");
+        printf("ë§ ì´ë™ : 0, í•­ë³µí•˜ê¸° : 1\n");
         scanf("%d",&a);
         if (a){
             if (tmp)
-                printf("°ËÀº»öÀÌ Ç×º¹Çß½À´Ï´Ù. Èò»öÀÇ ½Â¸®ÀÔ´Ï´Ù.\n");
+                printf("ê²€ì€ìƒ‰ì´ í•­ë³µí–ˆìŠµë‹ˆë‹¤. í°ìƒ‰ì˜ ìŠ¹ë¦¬ì…ë‹ˆë‹¤.\n");
             else
-                printf("Èò»öÀÌ Ç×º¹Çß½À´Ï´Ù. °ËÀº»öÀÇ ½Â¸®ÀÔ´Ï´Ù.\n");
+                printf("í°ìƒ‰ì´ í•­ë³µí–ˆìŠµë‹ˆë‹¤. ê²€ì€ìƒ‰ì˜ ìŠ¹ë¦¬ì…ë‹ˆë‹¤.\n");
             break;
         }
         while (Move(Scan(),turn[tmp]));
-        tmp^=1; // ÅÏÀÌ ³Ñ¾î°¨
+        tmp^=1; // í„´ì´ ë„˜ì–´ê°
+        /*
         if (Checkmate()){
             if (tmp)
-                printf("Ã¼Å©¸ŞÀÌÆ® ÀÔ´Ï´Ù. °ËÀº»öÀÇ ½Â¸®ÀÔ´Ï´Ù.\n");
+                printf("ì²´í¬ë©”ì´íŠ¸ ì…ë‹ˆë‹¤. ê²€ì€ìƒ‰ì˜ ìŠ¹ë¦¬ì…ë‹ˆë‹¤.\n");
             else
-                printf("Ã¼Å©¸ŞÀÌÆ® ÀÔ´Ï´Ù. Èò»öÀÇ ½Â¸®ÀÔ´Ï´Ù.\n");
+                printf("ì²´í¬ë©”ì´íŠ¸ ì…ë‹ˆë‹¤. í°ìƒ‰ì˜ ìŠ¹ë¦¬ì…ë‹ˆë‹¤.\n");
             break;
         }
+        
         if (Stalemate()){
-            printf("½ºÅ×ÀÏ¸ŞÀÌÆ® ÀÔ´Ï´Ù. ¹«½ÂºÎÀÔ´Ï´Ù.\n");
+            printf("ìŠ¤í…Œì¼ë©”ì´íŠ¸ ì…ë‹ˆë‹¤. ë¬´ìŠ¹ë¶€ì…ë‹ˆë‹¤.\n");
             break;
         }
+        */
     }
-    printf("°ÔÀÓÀÌ Á¾·áµË´Ï´Ù.");
+    printf("ê²Œì„ì´ ì¢…ë£Œë©ë‹ˆë‹¤.");
     return 0;
 }
