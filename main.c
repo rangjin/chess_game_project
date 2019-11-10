@@ -16,7 +16,7 @@ UNIT arr[10][10]; // 체스판
 char turn[3]="WB";
 int tmp=0; // 턴 표시 1=검, 0=흰
 
-void Setcolor (int text, int back){ // 글자색,  배경색 바꾸기
+void Setcolor (int text, int back){ // 글자색, 배경색 바꾸기
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),text|(back<<4));
 }
 
@@ -55,61 +55,51 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
         // 가능하다면 return 1;
     }
     else if (type=='N'){ // 나이트
-        if (abs(curr.x - next.x) == 1 && abs(curr.y - next.y) == 2) {
+        if (abs(curr.x-next.x)==1 && abs(curr.y-next.y)==2)
             return 1;
-        } else if (abs(curr.x - next.x) == 2 && abs(curr.y - next.y) == 1) {
+        else if (abs(curr.x-next.x)==2 && abs(curr.y-next.y)==1)
             return 1;
-        }
         // 가능하다면 return 1;
     }
     else if (type=='R'){ // 룩
-        if (curr.x == next.x) {
-            int y = curr.y < next.y ? 1 : -1;
-            int testy = curr.y;
-            while (1) {
-                testy += y;
-                if (testy == next.y) {
+        if (curr.x==next.x){
+            int y=curr.y<next.y ? 1 : -1;
+            int testy=curr.y;
+            while (1){
+                testy+=y;
+                if (testy==next.y)
+                    return 1;
+                else if (arr[curr.x][testy].type!=0)
                     break;
-                }
-                else if (arr[curr.x][testy].type != 0) {
-                    return 0;
-                }
             }
-            return 1;
         }
-        else if (curr.y == next.y) {
-            int x = curr.x < next.x ? 1 : -1;
-            int testx = curr.x;
-            while (1) {
-                testx += x;
-                if (testx == next.x) {
+        else if (curr.y==next.y){
+            int x=curr.x<next.x ? 1 : -1;
+            int testx=curr.x;
+            while (1){
+                testx+=x;
+                if (testx==next.x)
+                    return 1;
+                else if (arr[testx][curr.y].type!=0)
                     break;
-                }
-                else if (arr[testx][curr.y].type != 0) {
-                    return 0;
-                }
             }
-            return 1;
         }
         // 가능하다면 return 1;
     }
     else if (type=='B'){ // 비숍
-        if (abs(curr.x - next.x) == abs(curr.y - next.y)) {
+        if (abs(curr.x-next.x)==abs(curr.y-next.y)){
             int x, y;
-            x = curr.x < next.x ? 1 : -1;
-            y = curr.y < next.y ? 1 : -1;
-            int testx = curr.x, testy = curr.y;
-            while (1) {
-                testx += x;
-                testy += y;
-                if (testx == next.x && testy == next.y) {
+            x=curr.x<next.x ? 1 : -1;
+            y=curr.y<next.y ? 1 : -1;
+            int testx=curr.x, testy=curr.y;
+            while (1){
+                testx+=x;
+                testy+=y;
+                if (testx==next.x && testy==next.y)
+                    return 1;
+                if (arr[testx][testy].type!=0)
                     break;
-                }
-                if (arr[testx][testy].type != 0) {
-                    return 0;
-                }
             }
-            return 1;
         }
         // 가능하다면 return 1;
     }
@@ -124,6 +114,10 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
 
 int Move(xy ab, char c){ //이동
     xy curr={ab.x/10,ab.x%10}, next={ab.y/10,ab.y%10};
+    if (curr.x<1 || curr.x>8 || curr.y<1 || curr.y>8 || next.x<1 || next.x>8 || next.y<1 || next.y>8){
+        printf("체스판 밖입니다. 다시 입력해 주세요.\n");
+        return 1;
+    }
     if (c!=arr[curr.x][curr.y].WB){
         printf("자신의 말이 아닙니다. 다시 입력해 주세요.\n");
         return 1;
@@ -188,7 +182,6 @@ void Print(){// 출력
     }
     printf("    [1] [2] [3] [4] [5] [6] [7] [8]\n");
 }
-
 /*
 int Stalemate(){ // 스테일메이트 판별
     xy king={0,0};
@@ -220,8 +213,7 @@ int Stalemate(){ // 스테일메이트 판별
     }
     return 1;
 }
-*/
-/*
+
 int Checkmate(){ // 체크메이트 판별
     xy king={0,0};
     int chk[9]={0}, dir[9][2]={{1,1},{1,0},{1,-1},{0,1},{0,0},{0,-1},{-1,1},{-1,0},{-1,-1}};
@@ -251,7 +243,6 @@ int Checkmate(){ // 체크메이트 판별
     return 1;
 }
 */
-
 int main(){
     Setting();
     while (1){
@@ -280,7 +271,6 @@ int main(){
                 printf("체크메이트 입니다. 흰색의 승리입니다.\n");
             break;
         }
-        
         if (Stalemate()){
             printf("스테일메이트 입니다. 무승부입니다.\n");
             break;
