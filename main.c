@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#define WHITE Setcolor(0,7)
+#define BLACK Setcolor(7,0)
+#define GRAY Setcolor(8,8)
 // 폰=P, 나이트=N, 룩=R, 비숍=B, 퀸=Q, 킹=K;
 
 typedef struct xy{
@@ -9,7 +12,7 @@ typedef struct xy{
 
 typedef struct UNIT{
     int move; // 이동횟수
-    char type, WB;// 말의종류, 흰검
+    char type, WB;// 말의종류, 색깔
 }UNIT;
 
 UNIT arr[10][10]; // 체스판
@@ -37,6 +40,8 @@ void Setting(){ // 기본 말 위치
 int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
     if (type=='P'){ // 폰
         if (arr[curr.x][curr.y].WB=='W'){ // 흰색
+            if (arr[next.x][next.y].WB=='B')
+                return 0; 
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==-2 && curr.y==next.y)
                 return 1;
             if (next.x-curr.x==-1 && curr.y==next.y)
@@ -45,6 +50,8 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
                 return 1;
         }
         if (arr[curr.x][curr.y].WB=='B'){ // 검은색
+            if (arr[next.x][next.y].WB=='W')
+                return 0; 
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==2 && curr.y==next.y)
                 return 1;
             if (next.x-curr.x==1 && curr.y==next.y)
@@ -104,6 +111,42 @@ int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
         // 가능하다면 return 1;
     }
     else if (type=='Q'){ // 퀸
+        if (curr.x==next.x){
+            int y=curr.y<next.y ? 1 : -1;
+            int testy=curr.y;
+            while (1){
+                testy+=y;
+                if (testy==next.y)
+                    return 1;
+                else if (arr[curr.x][testy].type!=0)
+                    break;
+            }
+        }
+        else if (curr.y==next.y){
+            int x=curr.x<next.x ? 1 : -1;
+            int testx=curr.x;
+            while (1){
+                testx+=x;
+                if (testx==next.x)
+                    return 1;
+                else if (arr[testx][curr.y].type!=0)
+                    break;
+            }
+        }
+        if (abs(curr.x-next.x)==abs(curr.y-next.y)){
+            int x, y;
+            x=curr.x<next.x ? 1 : -1;
+            y=curr.y<next.y ? 1 : -1;
+            int testx=curr.x, testy=curr.y;
+            while (1){
+                testx+=x;
+                testy+=y;
+                if (testx==next.x && testy==next.y)
+                    return 1;
+                if (arr[testx][testy].type!=0)
+                    break;
+            }
+        }
         // 가능하다면 return 1;
     }
     else if (type=='K'){ // 킹
@@ -132,11 +175,11 @@ int Move(xy ab, char c){ //이동
         arr[curr.x][curr.y].move=0;
         arr[curr.x][curr.y].type=0;
         arr[curr.x][curr.y].WB=0;
-        printf("%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x/10-1+'A',ab.x%10,ab.y/10-1+'A',ab.y%10);
+        printf("%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',ab.x/10,ab.y%10-1+'A',ab.y/10);
         return 0;
     }
     else{
-        printf("불가능한 위치입니다. 다시 입력해 주세요.\n");
+        printf("이동이 불가능한 위치입니다. 다시 입력해 주세요.\n");
         return 1;
     }
 }
@@ -145,51 +188,90 @@ xy Scan(){ // 입력
     char a, b;
     xy ab;
     scanf(" %c%d %c%d", &a, &ab.x, &b, &ab.y);
+    ab.x*=10, ab.y*=10;
     if (a>='a' && a<='z')
-        ab.x+=(a-'a'+1)*10;
+        ab.x+=(a-'a'+1);
     else
-        ab.x+=(a-'A'+1)*10;
+        ab.x+=(a-'A'+1);
     if (b>='a' && b<='z')
-        ab.y+=(b-'a'+1)*10;
+        ab.y+=(b-'a'+1);
     else
-        ab.y+=(b-'A'+1)*10;
+        ab.y+=(b-'A'+1);
     return ab;
 }
 
 void Print(){// 출력
-    printf("    [1] [2] [3] [4] [5] [6] [7] [8]\n");
-    printf("   #################################\n");
+    printf("    [A] [B] [C] [D] [E] [F] [G] [H]\n");
+    printf("   ");
+    GRAY;
+    printf("#################################\n");
     for (int i=1;i<=8;i++){
-        printf("   #   #   #   #   #   #   #   #   #\n");
-        printf("[%c]",i+'A'-1);
+        BLACK;
+        printf("   ");
+        for (int j=1;j<=8;j++){
+            GRAY;
+            printf("#");
+            (i+j)%2 ? BLACK : WHITE;
+            printf("   ");
+            BLACK;
+        }
+        GRAY;
+        printf("#\n");
+        BLACK;
+        printf("[%d]",i);
         for (int j=1;j<=8;j++){
             if (arr[i][j].type){
-                printf("# ");
+                GRAY;
+                printf("#");
+                (i+j)%2 ? BLACK : WHITE;
+                printf(" ");
                 if (arr[i][j].WB=='W')
                     Setcolor(7,8);
                 else
                     Setcolor(0,8);
                 printf("%c",arr[i][j].type);
-                Setcolor(7,0);
+                (i+j)%2 ? BLACK : WHITE;
                 printf(" ");
+                BLACK;
             }
-            else
-                printf("#   ");
+            else{
+                GRAY;
+                printf("#");
+                (i+j)%2 ? BLACK : WHITE;
+                printf("   ");
+                BLACK;
+            }
         }
-        printf("#[%c]\n",i+'A'-1);
-        printf("   #   #   #   #   #   #   #   #   #\n");
-        printf("   #################################\n");
+        GRAY;
+        printf("#");
+        BLACK;
+        printf("[%d]\n",i);
+        printf("   ");
+        for (int j=1;j<=8;j++){
+            GRAY;
+            printf("#");
+            (i+j)%2 ? BLACK : WHITE;
+            printf("   ");
+            BLACK;
+        }
+        GRAY;
+        printf("#\n");
+        BLACK;
+        printf("   ");
+        GRAY;
+        printf("#################################\n");
     }
-    printf("    [1] [2] [3] [4] [5] [6] [7] [8]\n");
+    BLACK;
+    printf("    [A] [B] [C] [D] [E] [F] [G] [H]\n");
 }
-/*
+
 int Stalemate(){ // 스테일메이트 판별
     xy king={0,0};
     int chk[8]={0}, dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){
         for (int j=1;j<=8;j++){
             if (arr[i][j].type=='K' && arr[i][j].WB==tmp)
-                king.x=i,king.y=j;
+                king.x=i, king.y=j;
             else if (arr[i][j].WB==tmp)
                 return 0;
         }
@@ -213,7 +295,7 @@ int Stalemate(){ // 스테일메이트 판별
     }
     return 1;
 }
-
+/*
 int Checkmate(){ // 체크메이트 판별
     xy king={0,0};
     int chk[9]={0}, dir[9][2]={{1,1},{1,0},{1,-1},{0,1},{0,0},{0,-1},{-1,1},{-1,0},{-1,-1}};
@@ -271,11 +353,11 @@ int main(){
                 printf("체크메이트 입니다. 흰색의 승리입니다.\n");
             break;
         }
+        */
         if (Stalemate()){
             printf("스테일메이트 입니다. 무승부입니다.\n");
             break;
         }
-        */
     }
     printf("게임이 종료됩니다.");
     return 0;
