@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
-#define WHITE Setcolor(0,7)
-#define BLACK Setcolor(7,0)
-#define GRAY Setcolor(8,8)
+#include <locale.h>
+#include <wchar.h>
 // 폰=P, 나이트=N, 룩=R, 비숍=B, 퀸=Q, 킹=K;
 
 typedef struct xy{
@@ -12,32 +10,33 @@ typedef struct xy{
 
 typedef struct UNIT{
     int move; // 이동횟수
-    char type, WB;// 말의종류, 색깔
+    wchar_t type;
+    char WB;// 말의종류, 색깔
 }UNIT;
 
 UNIT arr[10][10]; // 체스판
 char turn[3]="WB";
 int tmp=0; // 턴 표시 1=검, 0=흰
 
-void Setcolor (int text, int back){ // 글자색, 배경색 바꾸기
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),text|(back<<4));
-}
-
 void Setting(){ // 기본 말 위치
-    char a[8]={'R','N','B','Q','K','B','N','R'};
+    setlocale(LC_ALL,"");
+    wchar_t w[8]={0x265C,0x265E,0x265D,0x265B,0x265A,0x265D,0x265E,0x265C};
+    wchar_t b[8]={0x2656,0x2658,0x2657,0x2655,0x2654,0x2657,0x2658,0x2656};
     for (int i=0;i<=9;i++){
         for (int j=0;j<=9;j++)
             arr[i][j].type=arr[i][j].move=arr[i][j].WB=0;
     }
     for (int i=1;i<=8;i++){
-        arr[2][i].type=arr[7][i].type='P';
+        arr[7][i].type=0x265F;
+        arr[2][i].type=0x2659;
         arr[1][i].WB=arr[2][i].WB='B';
-        arr[1][i].type=arr[8][i].type=a[i-1];
+        arr[1][i].type=b[i-1];
+        arr[8][i].type=w[i-1];
         arr[7][i].WB=arr[8][i].WB='W';
     }
 }
 
-int Check(xy curr, xy next, char type){ // 각 말이 이동가능한지 체크
+int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체크
     if (type=='P'){ // 폰
         if (arr[curr.x][curr.y].WB=='W'){ // 흰색
             if (arr[next.x][next.y].WB=='B')
@@ -201,68 +200,38 @@ xy Scan(){ // 입력
 }
 
 void Print(){// 출력
-    printf("    [A] [B] [C] [D] [E] [F] [G] [H]\n");
-    printf("   ");
-    GRAY;
-    printf("#################################\n");
+    setlocale(LC_CTYPE,"");
+    wprintf(L"     [A]   [B]   [C]   [D]   [E]   [F]   [G]   [H]\n");
+    wprintf(L"   ");
+    wprintf(L"■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
     for (int i=1;i<=8;i++){
-        BLACK;
-        printf("   ");
+        wprintf(L"   ");
         for (int j=1;j<=8;j++){
-            GRAY;
-            printf("#");
-            (i+j)%2 ? BLACK : WHITE;
-            printf("   ");
-            BLACK;
+            wprintf(L"■     ");
         }
-        GRAY;
-        printf("#\n");
-        BLACK;
-        printf("[%d]",i);
+        wprintf(L"■\n");
+        wprintf(L"[%d]",i);
         for (int j=1;j<=8;j++){
             if (arr[i][j].type){
-                GRAY;
-                printf("#");
-                (i+j)%2 ? BLACK : WHITE;
-                printf(" ");
-                if (arr[i][j].WB=='W')
-                    Setcolor(7,8);
-                else
-                    Setcolor(0,8);
-                printf("%c",arr[i][j].type);
-                (i+j)%2 ? BLACK : WHITE;
-                printf(" ");
-                BLACK;
+                wprintf(L"■  ");
+                wprintf(L"%lc",arr[i][j].type);
+                wprintf(L"  ");
             }
             else{
-                GRAY;
-                printf("#");
-                (i+j)%2 ? BLACK : WHITE;
-                printf("   ");
-                BLACK;
+                wprintf(L"■     ");
             }
         }
-        GRAY;
-        printf("#");
-        BLACK;
-        printf("[%d]\n",i);
-        printf("   ");
+        wprintf(L"■");
+        wprintf(L"[%d]\n",i);
+        wprintf(L"   ");
         for (int j=1;j<=8;j++){
-            GRAY;
-            printf("#");
-            (i+j)%2 ? BLACK : WHITE;
-            printf("   ");
-            BLACK;
+            wprintf(L"■     ");
         }
-        GRAY;
-        printf("#\n");
-        BLACK;
-        printf("   ");
-        GRAY;
-        printf("#################################\n");
+        wprintf(L"■\n");
+        wprintf(L"   ");
+        wprintf(L"■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
     }
-    BLACK;
-    printf("    [A] [B] [C] [D] [E] [F] [G] [H]\n");
+    wprintf(L"     [A]   [B]   [C]   [D]   [E]   [F]   [G]   [H]\n");
 }
 
 int Stalemate(){ // 스테일메이트 판별
