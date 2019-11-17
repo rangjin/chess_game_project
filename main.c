@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <wchar.h>
+#include <Windows.h>
 // 폰=P, 나이트=N, 룩=R, 비숍=B, 퀸=Q, 킹=K;
 
 typedef struct xy{
@@ -298,6 +299,7 @@ int main(){
     Setting();
     while (1){
         int a;
+        system("clear");
         Print();
         if (tmp)
             printf("검은색의 턴입니다.\n");
