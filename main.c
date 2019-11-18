@@ -3,6 +3,20 @@
 #include <locale.h>
 #include <wchar.h>
 #include <Windows.h>
+#define B_king 0x2654
+#define B_Queen 0x2655
+#define B_Knight 0x2656
+#define B_Bishop 0x2657
+#define B_Rook 0x2658
+#define B_Pawn 0x2659
+#define W_king 0x265A
+#define W_Queen 0x265B
+#define W_Knight 0x265C
+#define W_Bishop 0x265D
+#define W_Rook 0x265E
+#define W_Pawn 0x265F
+#define MAKEWHITE wprintf(L"\x1b[47m\x1b[30m")
+#define MAKEBLACK wprintf(L"\x1b[37m\x1b[40m")
 // 폰=P, 나이트=N, 룩=R, 비숍=B, 퀸=Q, 킹=K;
 
 typedef struct xy{
@@ -21,15 +35,15 @@ int tmp=0; // 턴 표시 1=검, 0=흰
 
 void Setting(){ // 기본 말 위치
     setlocale(LC_ALL,"");
-    wchar_t w[8]={0x265C,0x265E,0x265D,0x265B,0x265A,0x265D,0x265E,0x265C};
-    wchar_t b[8]={0x2656,0x2658,0x2657,0x2655,0x2654,0x2657,0x2658,0x2656};
+    wchar_t w[8]={W_Rook,W_Knight,W_Bishop,W_Queen,W_king,W_Bishop,W_Knight,W_Rook};
+    wchar_t b[8]={B_Rook,B_Knight,B_Bishop,B_Queen,B_king,B_Bishop,B_Knight,B_Rook};
     for (int i=0;i<=9;i++){
         for (int j=0;j<=9;j++)
             arr[i][j].type=arr[i][j].move=arr[i][j].WB=0;
     }
     for (int i=1;i<=8;i++){
-        arr[7][i].type=0x265F;
-        arr[2][i].type=0x2659;
+        arr[7][i].type=W_Pawn;
+        arr[2][i].type=B_Pawn;
         arr[1][i].WB=arr[2][i].WB='B';
         arr[1][i].type=b[i-1];
         arr[8][i].type=w[i-1];
@@ -38,7 +52,7 @@ void Setting(){ // 기본 말 위치
 }
 
 int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체크
-    if (type=='P'){ // 폰
+    if (type==W_Pawn || type==B_Pawn){ // 폰
         if (arr[curr.x][curr.y].WB=='W'){ // 흰색
             if (arr[next.x][next.y].WB=='B')
                 return 0; 
@@ -61,7 +75,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         }
         // 가능하다면 return 1;
     }
-    else if (type=='N'){ // 나이트
+    else if (type==W_Knight || type==B_Knight){ // 나이트
         if (abs(curr.x-next.x)==1 && abs(curr.y-next.y)==2)
             return 1;
         else if (abs(curr.x-next.x)==2 && abs(curr.y-next.y)==1)
@@ -93,7 +107,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         }
         // 가능하다면 return 1;
     }
-    else if (type=='B'){ // 비숍
+    else if (type==W_Bishop || type==B_Bishop){ // 비숍
         if (abs(curr.x-next.x)==abs(curr.y-next.y)){
             int x, y;
             x=curr.x<next.x ? 1 : -1;
@@ -110,7 +124,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         }
         // 가능하다면 return 1;
     }
-    else if (type=='Q'){ // 퀸
+    else if (type==W_Queen || type==B_Queen){ // 퀸
         if (curr.x==next.x){
             int y=curr.y<next.y ? 1 : -1;
             int testy=curr.y;
@@ -149,7 +163,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         }
         // 가능하다면 return 1;
     }
-    else if (type=='K'){ // 킹
+    else if (type==W_king || type==B_king){ // 킹
         // 가능하다면 return 1;
     }
     return 0;
@@ -158,15 +172,15 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
 int Move(xy ab, char c){ //이동
     xy curr={ab.x/10,ab.x%10}, next={ab.y/10,ab.y%10};
     if (curr.x<1 || curr.x>8 || curr.y<1 || curr.y>8 || next.x<1 || next.x>8 || next.y<1 || next.y>8){
-        printf("체스판 밖입니다. 다시 입력해 주세요.\n");
+        wprintf(L"체스판 밖입니다. 다시 입력해 주세요.\n");
         return 1;
     }
     if (c!=arr[curr.x][curr.y].WB){
-        printf("자신의 말이 아닙니다. 다시 입력해 주세요.\n");
+        wprintf(L"자신의 말이 아닙니다. 다시 입력해 주세요.\n");
         return 1;
     }
     if (arr[curr.x][curr.y].WB==arr[next.x][next.y].WB){
-        printf("이미 아군말이 존재하는 위치입니다. 다시 입력해 주세요.\n");
+        wprintf(L"이미 아군말이 존재하는 위치입니다. 다시 입력해 주세요.\n");
         return 1;
     }
     if (Check(curr,next,arr[curr.x][curr.y].type)){
@@ -175,11 +189,11 @@ int Move(xy ab, char c){ //이동
         arr[curr.x][curr.y].move=0;
         arr[curr.x][curr.y].type=0;
         arr[curr.x][curr.y].WB=0;
-        printf("%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',ab.x/10,ab.y%10-1+'A',ab.y/10);
+        wprintf(L"%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',ab.x/10,ab.y%10-1+'A',ab.y/10);
         return 0;
     }
     else{
-        printf("이동이 불가능한 위치입니다. 다시 입력해 주세요.\n");
+        wprintf(L"이동이 불가능한 위치입니다. 다시 입력해 주세요.\n");
         return 1;
     }
 }
@@ -240,15 +254,15 @@ int Stalemate(){ // 스테일메이트 판별
     int chk[8]={0}, dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){
         for (int j=1;j<=8;j++){
-            if (arr[i][j].type=='K' && arr[i][j].WB==tmp)
+            if ((arr[i][j].type==W_king || arr[i][j].type==B_king) && arr[i][j].WB==turn[tmp])
                 king.x=i, king.y=j;
-            else if (arr[i][j].WB==tmp)
+            else if (arr[i][j].WB==turn[tmp])
                 return 0;
         }
     }
     for (int i=1;i<=8;i++){
         for (int j=1;j<=8;j++){
-            if (arr[i][j].WB!=tmp){
+            if (arr[i][j].WB!=turn[tmp]){
                 for (int k=0;k<8;k++){
                     if (chk[k])
                         continue;
@@ -302,16 +316,16 @@ int main(){
         system("clear");
         Print();
         if (tmp)
-            printf("검은색의 턴입니다.\n");
+            wprintf(L"검은색의 턴입니다.\n");
         else
-            printf("흰색의 턴입니다.\n");
-        printf("말 이동 : 0, 항복하기 : 1\n");
+            wprintf(L"흰색의 턴입니다.\n");
+        wprintf(L"말 이동 : 0, 항복하기 : 1\n");
         scanf("%d",&a);
         if (a){
             if (tmp)
-                printf("검은색이 항복했습니다. 흰색의 승리입니다.\n");
+                wprintf(L"검은색이 항복했습니다. 흰색의 승리입니다.\n");
             else
-                printf("흰색이 항복했습니다. 검은색의 승리입니다.\n");
+                wprintf(L"흰색이 항복했습니다. 검은색의 승리입니다.\n");
             break;
         }
         while (Move(Scan(),turn[tmp]));
@@ -319,17 +333,17 @@ int main(){
         /*
         if (Checkmate()){
             if (tmp)
-                printf("체크메이트 입니다. 검은색의 승리입니다.\n");
+                wprintf(L"체크메이트 입니다. 검은색의 승리입니다.\n");
             else
-                printf("체크메이트 입니다. 흰색의 승리입니다.\n");
+                wprintf(L"체크메이트 입니다. 흰색의 승리입니다.\n");
             break;
         }
         */
         if (Stalemate()){
-            printf("스테일메이트 입니다. 무승부입니다.\n");
+            wprintf(L"스테일메이트 입니다. 무승부입니다.\n");
             break;
         }
     }
-    printf("게임이 종료됩니다.");
+    wprintf(L"게임이 종료됩니다.");
     return 0;
 }
