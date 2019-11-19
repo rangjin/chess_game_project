@@ -5,19 +5,19 @@
 #include <Windows.h>
 #define B_king 0x2654
 #define B_Queen 0x2655
-#define B_Knight 0x2656
+#define B_Rook 0x2656
 #define B_Bishop 0x2657
-#define B_Rook 0x2658
+#define B_Knight 0x2658
 #define B_Pawn 0x2659
 #define W_king 0x265A
 #define W_Queen 0x265B
-#define W_Knight 0x265C
+#define W_Rook 0x265C
 #define W_Bishop 0x265D
-#define W_Rook 0x265E
+#define W_Knight 0x265E
 #define W_Pawn 0x265F
-#define MAKEWHITE wprintf(L"\x1b[47m\x1b[30m")
+#define MAKEWHITE wprintf(L"\x1b[30m\x1b[47m")
 #define MAKEBLACK wprintf(L"\x1b[37m\x1b[40m")
-// 폰=P, 나이트=N, 룩=R, 비숍=B, 퀸=Q, 킹=K;
+#define MAKEYELLOW wprintf(L"\x1b[33m\x1b[43m")
 
 typedef struct xy{
     int x, y; // xy축 좌표
@@ -34,7 +34,7 @@ char turn[3]="WB";
 int tmp=0; // 턴 표시 1=검, 0=흰
 
 void Setting(){ // 기본 말 위치
-    setlocale(LC_ALL,"");
+    setlocale( LC_ALL, "ko_KR.UTF-8" );
     wchar_t w[8]={W_Rook,W_Knight,W_Bishop,W_Queen,W_king,W_Bishop,W_Knight,W_Rook};
     wchar_t b[8]={B_Rook,B_Knight,B_Bishop,B_Queen,B_king,B_Bishop,B_Knight,B_Rook};
     for (int i=0;i<=9;i++){
@@ -218,33 +218,62 @@ void Print(){// 출력
     setlocale(LC_CTYPE,"");
     wprintf(L"     [A]   [B]   [C]   [D]   [E]   [F]   [G]   [H]\n");
     wprintf(L"   ");
-    wprintf(L"■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+    MAKEYELLOW;
+    wprintf(L"#################################################\n");
+    MAKEBLACK;
     for (int i=1;i<=8;i++){
         wprintf(L"   ");
         for (int j=1;j<=8;j++){
-            wprintf(L"■     ");
+            MAKEYELLOW;
+            wprintf(L"#");
+            (i+j)%2 ? MAKEBLACK : MAKEWHITE;
+            wprintf(L"     ");
+            MAKEBLACK;
         }
-        wprintf(L"■\n");
+        MAKEYELLOW;
+        wprintf(L"#\n");
+        MAKEBLACK;
         wprintf(L"[%d]",i);
         for (int j=1;j<=8;j++){
             if (arr[i][j].type){
-                wprintf(L"■  ");
-                wprintf(L"%lc",arr[i][j].type);
+                MAKEYELLOW;
+                wprintf(L"#");
+                MAKEBLACK;
+                (i+j)%2 ? MAKEBLACK : MAKEWHITE;
                 wprintf(L"  ");
+                wprintf(L"\x1b[31m");
+                wprintf(L"%lc",arr[i][j].type);
+                (i+j)%2 ? MAKEBLACK : MAKEWHITE;
+                wprintf(L"  ");
+                MAKEBLACK;
             }
             else{
-                wprintf(L"■     ");
+                MAKEYELLOW;
+                wprintf(L"#");
+                (i+j)%2 ? MAKEBLACK : MAKEWHITE;
+                wprintf(L"     ");
+                MAKEBLACK;
             }
         }
-        wprintf(L"■");
+        MAKEYELLOW;
+        wprintf(L"#");
+        MAKEBLACK;
         wprintf(L"[%d]\n",i);
         wprintf(L"   ");
         for (int j=1;j<=8;j++){
-            wprintf(L"■     ");
+            MAKEYELLOW;
+            wprintf(L"#");
+            (i+j)%2 ? MAKEBLACK : MAKEWHITE;
+            wprintf(L"     ");
+            MAKEBLACK;
         }
-        wprintf(L"■\n");
+        MAKEYELLOW;
+        wprintf(L"#\n");
+        MAKEBLACK;
         wprintf(L"   ");
-        wprintf(L"■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+        MAKEYELLOW;
+        wprintf(L"#################################################\n");
+        MAKEBLACK;
     }
     wprintf(L"     [A]   [B]   [C]   [D]   [E]   [F]   [G]   [H]\n");
 }
