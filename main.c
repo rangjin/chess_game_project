@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <wchar.h>
-#include <Windows.h>
+#include <windows.h>
 #define king 0x265A
 #define Queen 0x265B
 #define Rook 0x265C
@@ -206,20 +206,15 @@ int Move(xy ab, char c){ //이동
         wprintf(L"이미 아군말이 존재하는 위치입니다. 다시 입력해 주세요.\n");
         return 1;
     }
-    if (Check(curr,next,arr[curr.x][curr.y].type)==2){
-        wchar_t s[4] = {Queen, Bishop, Knight, Rook};
-        int i;
-        wprintf(L"폰 승급조건 달성\n");
-        wprintf(L"승급 기물 선택(0 : 퀸, 1 : 비숍, 2 : 나이트, 3 : 룩) : ");
-        scanf("%d",&i);
-        arr[next.x][next.y]=arr[curr.x][curr.y];
-        arr[next.x][next.y].move++;
-        arr[curr.x][curr.y].move=arr[curr.x][curr.y].type=arr[curr.x][curr.y].WB=0;
-        arr[next.x][next.y].type=s[i];
-        wprintf(L"%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',9-ab.x/10,ab.y%10-1+'A',9-ab.y/10);
-        return 0;
-    }
     if (Check(curr,next,arr[curr.x][curr.y].type)){
+        if (Check(curr,next,arr[curr.x][curr.y].type)==2){
+            wchar_t s[4] = {Queen, Bishop, Knight, Rook};
+            int i;
+            wprintf(L"폰 승급조건 달성\n");
+            wprintf(L"승급 기물 선택(0 : 퀸, 1 : 비숍, 2 : 나이트, 3 : 룩) : ");
+            scanf("%d",&i);
+            arr[curr.x][curr.y].type=s[i];
+        }
         arr[next.x][next.y]=arr[curr.x][curr.y];
         arr[next.x][next.y].move++;
         arr[curr.x][curr.y].move=arr[curr.x][curr.y].type=arr[curr.x][curr.y].WB=0;
@@ -313,50 +308,46 @@ void Print(){// 출력
 int Stalemate(){ // 스테일메이트 판별
     xy nowking={0,0};
     int chk[8]={0}, dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
-    for (int i=1;i<=8;i++){
+    for (int i=1;i<=8;i++){ // 움직일수 있는 기물이 킹뿐인지 체크
         for (int j=1;j<=8;j++){
-            if (arr[i][j].type==king && arr[i][j].WB==turn[tmp])
+            if (arr[i][j].type==king && arr[i][j].WB==turn[tmp]) // 킹의 위치 저장
                 nowking.x=i, nowking.y=j;
-            else if (arr[i][j].WB==turn[tmp])
-                return 0;
-        }
-    }
-    for (int i=1;i<=8;i++){
-        for (int j=1;j<=8;j++){
-            if (arr[i][j].WB!=turn[tmp]){
-                for (int k=0;k<8;k++){
-                    if (chk[k])
-                        continue;
-                    xy kingmove={nowking.x+dir[k][0],nowking.y+dir[k][1]}, enemy={i,j};
-                    if (Check(enemy,kingmove,arr[i][j].type))
-                        chk[k]=1;
+            else if (arr[i][j].WB==turn[tmp]){ // 다른기물이 있을경우 이동가능하면 탈출
+                xy curr={i,j};
+                for (int x=1;x<=8;x++){
+                    for (int y=1;y<=8;y++){
+                        xy next={x,y};
+                        if (Check(curr,next,arr[i][j].type))
+                            return 0;
+                    }
                 }
             }
         }
     }
-    for (int i=0;i<8;i++){
-        if (!chk[i])
+    for (int i=0;i<8;i++){ // 킹이 이동가능한 칸이 한칸이라도 있는지 체크
+        xy kingmove={nowking.x+dir[i][0],nowking.y+dir[i][1]};
+        if (Check(nowking,kingmove,king))
             return 0;
     }
     return 1;
 }
 /*
 int Checkmate(){ // 체크메이트 판별
-    xy king={0,0};
+    xy nowking={0,0};
     int chk[9]={0}, dir[9][2]={{1,1},{1,0},{1,-1},{0,1},{0,0},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){
         for (int j=1;j<=8;j++){
-            if (arr[i][j].type=='K' && arr[i][j].WB==tmp)
-                king.x=i,king.y=j;
+             if (arr[i][j].type==king && arr[i][j].WB==turn[tmp])
+                nowking.x=i,nowking.y=j;
         }
     }
     for (int i=1;i<=8;i++){
         for (int j=1;j<=8;j++){
-            if (arr[i][j].WB!=tmp){
+            if (arr[i][j].WB!=turn[tmp]){
                 for (int k=0;k<9;k++){
                     if (chk[k])
                         continue;
-                    xy kingmove={king.x+dir[k][0],king.y+dir[k][1]}, enemy={i,j};
+                    xy kingmove={nowking.x+dir[k][0],nowking.y+dir[k][1]}, enemy={i,j};
                     if (Check(enemy,kingmove,arr[i][j].type))
                         chk[k]=1;
                 }
