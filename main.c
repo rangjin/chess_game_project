@@ -56,20 +56,25 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
                 return 0; 
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==-2 && curr.y==next.y)
                 return 1;
-            if (next.x-curr.x==-1 && curr.y==next.y)
-                return 1;
-            
+            if (next.x-curr.x==-1 && curr.y==next.y) {
+                if (next.x==1)
+                    return 2;
+                else
+                    return 1;
+            }
         }
         if (arr[curr.x][curr.y].WB=='B'){ // 검은색
             if (arr[next.x][next.y].WB=='W' && next.x-curr.x==1 && (next.y-curr.y==1 || next.y-curr.y==-1))
                 return 1;
             if (arr[next.x][next.y].WB=='W')
-                return 0; 
+                return 0;
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==2 && curr.y==next.y)
                 return 1;
             if (next.x-curr.x==1 && curr.y==next.y)
-                return 1;
-            
+                if(next.x==8)
+                    return 2;
+                else
+                    return 1;
         }
         // 가능하다면 return 1;
     }
@@ -200,6 +205,19 @@ int Move(xy ab, char c){ //이동
     if (arr[curr.x][curr.y].WB==arr[next.x][next.y].WB){
         wprintf(L"이미 아군말이 존재하는 위치입니다. 다시 입력해 주세요.\n");
         return 1;
+    }
+    if (Check(curr,next,arr[curr.x][curr.y].type)==2){
+        wchar_t s[4] = {Queen, Bishop, Knight, Rook};
+        int i;
+        wprintf(L"폰 승급조건 달성\n");
+        wprintf(L"승급 기물 선택(0 : 퀸, 1 : 비숍, 2 : 나이트, 3 : 룩) : ");
+        scanf("%d",&i);
+        arr[next.x][next.y]=arr[curr.x][curr.y];
+        arr[next.x][next.y].move++;
+        arr[curr.x][curr.y].move=arr[curr.x][curr.y].type=arr[curr.x][curr.y].WB=0;
+        arr[next.x][next.y].type=s[i];
+        wprintf(L"%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',9-ab.x/10,ab.y%10-1+'A',9-ab.y/10);
+        return 0;
     }
     if (Check(curr,next,arr[curr.x][curr.y].type)){
         arr[next.x][next.y]=arr[curr.x][curr.y];
