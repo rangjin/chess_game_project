@@ -162,6 +162,26 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         // 가능하다면 return 1;
     }
     else if (type==king){ // 킹
+        if (abs(curr.x-next.x)<=1 && abs(curr.y-next.y)<=1){
+            UNIT prev=arr[next.x][next.y];
+            arr[next.x][next.y]=arr[curr.x][curr.y];
+            arr[curr.x][curr.y].move=arr[curr.x][curr.y].type=arr[curr.x][curr.y].WB=0;
+            for (int i=1;i<=8;i++){
+                for (int j=1;j<=8;j++){
+                    if (arr[i][j].WB!=turn[tmp]){
+                        xy enemy={i,j};
+                        if (Check(enemy,next,arr[i][j].type)){
+                            arr[curr.x][curr.y]=arr[next.x][next.y];
+                            arr[next.x][next.y]=prev;
+                            return 0;
+                        }
+                    }
+                }
+            }
+            arr[curr.x][curr.y]=arr[next.x][next.y];
+            arr[next.x][next.y]=prev;
+            return 1;
+        }
         // 가능하다면 return 1;
     }
     return 0;
@@ -184,10 +204,8 @@ int Move(xy ab, char c){ //이동
     if (Check(curr,next,arr[curr.x][curr.y].type)){
         arr[next.x][next.y]=arr[curr.x][curr.y];
         arr[next.x][next.y].move++;
-        arr[curr.x][curr.y].move=0;
-        arr[curr.x][curr.y].type=0;
-        arr[curr.x][curr.y].WB=0;
-        wprintf(L"%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',ab.x/10,ab.y%10-1+'A',ab.y/10);
+        arr[curr.x][curr.y].move=arr[curr.x][curr.y].type=arr[curr.x][curr.y].WB=0;
+        wprintf(L"%c%d의 말이 %c%d로 이동되었습니다.\n",ab.x%10-1+'A',9-ab.x/10,ab.y%10-1+'A',9-ab.y/10);
         return 0;
     }
     else{
@@ -200,6 +218,7 @@ xy Scan(){ // 입력
     char a, b;
     xy ab;
     scanf(" %c%d %c%d", &a, &ab.x, &b, &ab.y);
+    ab.x=9-ab.x, ab.y=9-ab.y;
     ab.x*=10, ab.y*=10;
     if (a>='a' && a<='z')
         ab.x+=(a-'a'+1);
@@ -214,26 +233,26 @@ xy Scan(){ // 입력
 
 void Print(){// 출력
     setlocale(LC_CTYPE,"");
-    wprintf(L"     [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
+    wprintf(L"      [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
     wprintf(L"   ");
     tmp ?  MAKEBLUE : MAKERED;
-    wprintf(L"##########################################\n");
+    wprintf(L"############################################\n");
     MAKEBLACK;
     for (int i=1;i<=8;i++){
         wprintf(L"   ");
         tmp ?  MAKEBLUE : MAKERED;
-        wprintf(L"#");
+        wprintf(L"##");
         for (int j=1;j<=8;j++){
             (i+j)%2 ? MAKEBLACK : MAKEWHITE;
             wprintf(L"     ");
             MAKEBLACK;
         }
         tmp ?  MAKEBLUE : MAKERED;
-        wprintf(L"#\n");
+        wprintf(L"##\n");
         MAKEBLACK;
-        wprintf(L"[%d]",i);
+        wprintf(L"[%d]",9-i);
         tmp ?  MAKEBLUE : MAKERED;
-        wprintf(L"#");
+        wprintf(L"##");
         for (int j=1;j<=8;j++){
             if (arr[i][j].type){
                 (i+j)%2 ? MAKEBLACK : MAKEWHITE;
@@ -251,27 +270,26 @@ void Print(){// 출력
             }
         }
         tmp ?  MAKEBLUE : MAKERED;
-        wprintf(L"#");
+        wprintf(L"##");
         MAKEBLACK;
-        wprintf(L"[%d]\n",i);
+        wprintf(L"[%d]\n",9-i);
         wprintf(L"   ");
         tmp ?  MAKEBLUE : MAKERED;
-        wprintf(L"#");
+        wprintf(L"##");
         for (int j=1;j<=8;j++){    
             (i+j)%2 ? MAKEBLACK : MAKEWHITE;
             wprintf(L"     ");
             MAKEBLACK;
         }
         tmp ?  MAKEBLUE : MAKERED;
-        wprintf(L"#\n");
+        wprintf(L"##\n");
         MAKEBLACK;
     }
-    
     wprintf(L"   ");
     tmp ?  MAKEBLUE : MAKERED;
-    wprintf(L"##########################################\n");
+    wprintf(L"############################################\n");
     MAKEBLACK;
-    wprintf(L"     [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
+    wprintf(L"      [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
 }
 
 int Stalemate(){ // 스테일메이트 판별
