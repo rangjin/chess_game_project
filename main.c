@@ -53,7 +53,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
             if (next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
                 if (arr[next.x][next.y].WB=='B')
                     return 1;
-                else if (next.x=3 && arr[next.x+1][next.y].type==Pawn && arr[next.x+1][next.y].move==1 && arr[next.x+1][next.y].WB=='B')
+                else if (next.x==3 && arr[next.x+1][next.y].type==Pawn && arr[next.x+1][next.y].move==1 && arr[next.x+1][next.y].WB=='B')
                     return 3;
             }
             if (arr[next.x][next.y].WB=='B')
@@ -68,8 +68,12 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
             }
         }
         if (arr[curr.x][curr.y].WB=='B'){ // 검은색
-            if (arr[next.x][next.y].WB=='W' && next.x-curr.x==1 && (next.y-curr.y==1 || next.y-curr.y==-1))
-                return 1;
+            if (next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
+                if (arr[next.x][next.y].WB=='W')
+                    return 1;
+                else if (next.x==6 && arr[next.x-1][next.y].type==Pawn && arr[next.x-1][next.y].move==1 && arr[next.x-1][next.y].WB=='W')
+                    return 3;
+            }
             if (arr[next.x][next.y].WB=='W')
                 return 0;
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==2 && curr.y==next.y)
@@ -171,6 +175,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         // 가능하다면 return 1;
     }
     else if (type==king){ // 킹
+        //if (curr.x-next.x==0 && abs(curr.y-next.y)<=1)
         if (abs(curr.x-next.x)<=1 && abs(curr.y-next.y)<=1){
             UNIT prev=arr[next.x][next.y];
             arr[next.x][next.y]=arr[curr.x][curr.y];
