@@ -50,8 +50,12 @@ void Setting(){ // 기본 말 위치
 int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체크
     if (type==Pawn){ // 폰
         if (arr[curr.x][curr.y].WB=='W'){ // 흰색
-            if (arr[next.x][next.y].WB=='B' && next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1))
-                return 1;
+            if (next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
+                if (arr[next.x][next.y].WB=='B')
+                    return 1;
+                else if (next.x=3 && arr[next.x+1][next.y].type==Pawn && arr[next.x+1][next.y].move==1 && arr[next.x+1][next.y].WB=='B')
+                    return 3;
+            }
             if (arr[next.x][next.y].WB=='B')
                 return 0; 
             if (arr[curr.x][curr.y].move==0 && next.x-curr.x==-2 && curr.y==next.y)
@@ -214,6 +218,9 @@ int Move(xy ab, char c){ //이동
             wprintf(L"승급 기물 선택(0 : 퀸, 1 : 비숍, 2 : 나이트, 3 : 룩) : ");
             scanf("%d",&i);
             arr[curr.x][curr.y].type=s[i];
+        }
+        else if (Check(curr,next,arr[curr.x][curr.y].type)==3){
+            arr[next.x+1][next.y].move=arr[next.x+1][next.y].type=arr[next.x+1][next.y].WB=0;
         }
         arr[next.x][next.y]=arr[curr.x][curr.y];
         arr[next.x][next.y].move++;
