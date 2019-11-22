@@ -297,7 +297,15 @@ xy Scan(){ // 입력
 }
 
 void Print(){// 출력
-    int a=strlen(player[0]), b=strlen(player[1]);
+    int a,b;
+    if (player[0][0] & 0x80)
+        a=strlen(player[0])/3*2;
+    else
+        a=strlen(player[0]);
+    if(player[1][0] & 0x80)
+        b=strlen(player[1])/3*2;
+    else
+        b=strlen(player[1]);
     setlocale(LC_CTYPE,"");
     wprintf(L"      [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
     wprintf(L"   ");
