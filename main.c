@@ -53,7 +53,10 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         if (arr[curr.x][curr.y].WB=='W'){ // 흰색
             if (next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
                 if (arr[next.x][next.y].WB=='B')
-                    return 1;
+                    if (next.x==1)
+                        return 2;
+                    else
+                        return 1;
                 else if (next.x==3 && arr[next.x+1][next.y].type==Pawn && arr[next.x+1][next.y].move==1 && arr[next.x+1][next.y].WB=='B')
                     return 3;
             }
@@ -71,7 +74,10 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         if (arr[curr.x][curr.y].WB=='B'){ // 검은색
             if (next.x-curr.x==1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
                 if (arr[next.x][next.y].WB=='W')
-                    return 1;
+                    if (next.x==8)
+                        return 2;
+                    else
+                        return 1;
                 else if (next.x==6 && arr[next.x-1][next.y].type==Pawn && arr[next.x-1][next.y].move==1 && arr[next.x-1][next.y].WB=='W')
                     return 3;
             }
