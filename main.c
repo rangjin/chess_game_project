@@ -38,7 +38,7 @@ void Setting(){ // 기본 말 위치
     for (int i=1;i<=8;i++){
         arr[2][i].type=arr[7][i].type=Pawn;
         arr[1][i].type=arr[8][i].type=x[i-1];
-        arr[1][i].WB=arr[2][i].WB='B';
+        arr[2][i].WB=arr[1][i].WB='B';
         arr[7][i].WB=arr[8][i].WB='W';
     }
     wprintf(L"player 1: ");
@@ -68,7 +68,7 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
             }
         }
         if (arr[curr.x][curr.y].WB=='B'){ // 검은색
-            if (next.x-curr.x==-1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
+            if (next.x-curr.x==1 && (next.y-curr.y==1 || next.y-curr.y==-1)) {
                 if (arr[next.x][next.y].WB=='W')
                     return 1;
                 else if (next.x==6 && arr[next.x-1][next.y].type==Pawn && arr[next.x-1][next.y].move==1 && arr[next.x-1][next.y].WB=='W')
@@ -175,7 +175,36 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         // 가능하다면 return 1;
     }
     else if (type==king){ // 킹
-        //if (curr.x-next.x==0 && abs(curr.y-next.y)<=1)
+        if (curr.x==next.x && arr[curr.x][curr.y].move==0){
+            for (int i=1;i<=8;i++){
+                for (int j=1;j<=8;j++){
+                    if (arr[i][j].WB!=turn[tmp]){
+                        xy enemy={i,j};
+                        if (Check(enemy,curr,arr[i][j].type)){
+                            return 0;
+                        }
+                        else{
+                            if (curr.y-next.y==2 && arr[curr.x][1].move==0) {
+                                for(int i=curr.y-1;i>1;i--){
+                                    if(arr[curr.x][i].type!=0){
+                                        return 0;
+                                    }
+                                }
+                                return 4;
+                            }
+                            if (curr.y-next.y==-2 && arr[curr.x][8].move==0) {
+                                for(int i=curr.y+1;i<8;i++){
+                                    if(arr[curr.x][i].type!=0){
+                                        return 0;
+                                    }
+                                }
+                                return 5;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if (abs(curr.x-next.x)<=1 && abs(curr.y-next.y)<=1){
             UNIT prev=arr[next.x][next.y];
             arr[next.x][next.y]=arr[curr.x][curr.y];
@@ -226,6 +255,16 @@ int Move(xy ab, char c){ //이동
         }
         else if (Check(curr,next,arr[curr.x][curr.y].type)==3){
             arr[next.x+1][next.y].move=arr[next.x+1][next.y].type=arr[next.x+1][next.y].WB=0;
+        }
+        else if(Check(curr,next,arr[curr.x][curr.y].type)==4){
+            arr[next.x][next.y+1]=arr[curr.x][1];
+            arr[next.x][next.y+1].move++;
+            arr[curr.x][1].move=arr[curr.x][1].WB=arr[curr.x][1].type=0;
+        }
+        else if(Check(curr,next,arr[curr.x][curr.y].type)==5){
+            arr[next.x][next.y-1]=arr[curr.x][8];
+            arr[next.x][next.y-1].move++;
+            arr[curr.x][8].move=arr[curr.x][8].WB=arr[curr.x][8].type=0;
         }
         arr[next.x][next.y]=arr[curr.x][curr.y];
         arr[next.x][next.y].move++;
@@ -380,7 +419,7 @@ int main(){
         system("clear");
         Print();
         wprintf(L"%s의 턴입니다.\n", player[tmp]);
-        wprintf(L"말 이동 : 0, 항복하기 : 1\n");
+        wprintf(L"항복하기 : 1\n");
         scanf("%d",&a);
         if (a){
             wprintf(L"%s이 항복했습니다. %s의 승리입니다.\n", player[tmp], player[tmp^1]);
