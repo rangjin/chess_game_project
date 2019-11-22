@@ -3,6 +3,7 @@
 #include <locale.h>
 #include <wchar.h>
 #include <windows.h>
+#include <string.h>
 #define king 0x265A
 #define Queen 0x265B
 #define Rook 0x265C
@@ -296,11 +297,27 @@ xy Scan(){ // 입력
 }
 
 void Print(){// 출력
+    int a=strlen(player[0]), b=strlen(player[1]);
     setlocale(LC_CTYPE,"");
     wprintf(L"      [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
     wprintf(L"   ");
     tmp ?  MAKEBLUE : MAKERED;
-    wprintf(L"############################################\n");
+    if ((44-b)%2==0){
+        for(int i=0;i<(44-b)/2;i++) wprintf(L"#");
+        wprintf(L"\x1b[37m");
+        wprintf(L"%s",player[1]);
+        tmp ? MAKEBLUE : MAKERED;
+        for(int i=0;i<(44-b)/2;i++) wprintf(L"#");
+        wprintf(L"\n");
+    }
+    else{
+        for(int i=0;i<(43-b)/2;i++) wprintf(L"#");
+        wprintf(L"\x1b[37m");
+        wprintf(L"%s",player[1]);
+        tmp ? MAKEBLUE : MAKERED;
+        for(int i=0;i<(45-b)/2;i++) wprintf(L"#");
+        wprintf(L"\n");
+    }
     MAKEBLACK;
     for (int i=1;i<=8;i++){
         wprintf(L"   ");
@@ -351,7 +368,22 @@ void Print(){// 출력
     }
     wprintf(L"   ");
     tmp ?  MAKEBLUE : MAKERED;
-    wprintf(L"############################################\n");
+    if ((44-a)%2==0){
+        for(int i=0;i<(44-a)/2;i++) wprintf(L"#");
+        wprintf(L"\x1b[37m");
+        wprintf(L"%s",player[0]);
+        tmp ? MAKEBLUE : MAKERED;
+        for(int i=0;i<(44-a)/2;i++) wprintf(L"#");
+        wprintf(L"\n");
+    }
+    else{
+        for(int i=0;i<(43-a)/2;i++) wprintf(L"#");
+        wprintf(L"\x1b[37m");
+        wprintf(L"%s",player[0]);
+        tmp ? MAKEBLUE : MAKERED;
+        for(int i=0;i<(45-a)/2;i++) wprintf(L"#");
+        wprintf(L"\n");
+    }
     MAKEBLACK;
     wprintf(L"      [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
 }
@@ -413,12 +445,12 @@ int Checkmate(){ // 체크메이트 판별
 }
 */
 int main(){
+    system("clear");
     Setting();
     while (1){
         int a;
         system("clear");
         Print();
-        wprintf(L"%s의 턴입니다.\n", player[tmp]);
         wprintf(L"항복하기 : 1\n");
         scanf("%d",&a);
         if (a){
