@@ -182,28 +182,35 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
         // 가능하다면 return 1;
     }
     else if (type==king){ // 킹
-        if (curr.x==next.x && arr[curr.x][curr.y].move==0){
+        if (curr.x==next.x && arr[curr.x][curr.y].move==0){ //킹이 좌우로 움직이고 킹이 이동한 적이 없을 때
+            UNIT prev=arr[next.x][next.y];
+            arr[next.x][next.y]=arr[curr.x][curr.y];
+            arr[curr.x][curr.y].move=arr[curr.x][curr.y].type=arr[curr.x][curr.y].WB=0;
             for (int i=1;i<=8;i++){
                 for (int j=1;j<=8;j++){
                     if (arr[i][j].WB!=turn[tmp]){
                         xy enemy={i,j};
-                        if (Check(enemy,curr,arr[i][j].type)){
+                        if (Check(enemy,curr,arr[i][j].type)) //현재 체크 상태인 경우 리턴 0
+                            return 0;
+                        if (Check(enemy,next,arr[i][j].type)){ // 다음 이동이 자살일 경우 리턴 0
+                            arr[curr.x][curr.y]=arr[next.x][next.y];
+                            arr[next.x][next.y]=prev;
                             return 0;
                         }
-                        else{
-                            if (curr.y-next.y==2 && arr[curr.x][1].move==0) {
-                                for(int i=curr.y-1;i>1;i--){
-                                    if(arr[curr.x][i].type!=0){
+                        else{ //체크 상태도 아니고 다음 이동이 자살도 아닐 경우
+                            arr[curr.x][curr.y]=arr[next.x][next.y];
+                            arr[next.x][next.y]=prev;
+                            if (curr.y-next.y==2 && arr[curr.x][1].move==0) { //킹이 좌로 2칸 움직이고 룩이 이동한 적이 없을 때
+                                for(int i=curr.y-1;i>1;i--) { //킹과 룩 사이 기물 체크
+                                    if (arr[curr.x][i].type != 0)  //기물이 있으면 리턴 0
                                         return 0;
-                                    }
                                 }
                                 return 4;
                             }
-                            if (curr.y-next.y==-2 && arr[curr.x][8].move==0) {
-                                for(int i=curr.y+1;i<8;i++){
-                                    if(arr[curr.x][i].type!=0){
+                            if (curr.y-next.y==-2 && arr[curr.x][8].move==0) { //킹이 우로 2칸 움직이고 룩이 이동한 적이 없을 때
+                                for(int i=curr.y+1;i<8;i++){ //킹과 룩 사이 기물 체크
+                                    if(arr[curr.x][i].type!=0)  //기물이 있으면 리턴 0
                                         return 0;
-                                    }
                                 }
                                 return 5;
                             }
