@@ -57,8 +57,10 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
                         return 2;
                     else
                         return 1;
-                else if (next.x==3 && arr[next.x+1][next.y].type==Pawn && arr[next.x+1][next.y].move==1 && arr[next.x+1][next.y].WB=='B')
-                    return 3;
+                else if (next.x==3 && arr[next.x+1][next.y].type==Pawn && arr[next.x+1][next.y].move==1 && arr[next.x+1][next.y].WB=='B'){
+                    arr[next.x+1][next.y].move=arr[next.x+1][next.y].type=arr[next.x+1][next.y].WB=0;
+                    return 1;
+                }
             }
             if (arr[next.x][next.y].WB=='B')
                 return 0; 
@@ -78,8 +80,10 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
                         return 2;
                     else
                         return 1;
-                else if (next.x==6 && arr[next.x-1][next.y].type==Pawn && arr[next.x-1][next.y].move==1 && arr[next.x-1][next.y].WB=='W')
+                else if (next.x==6 && arr[next.x-1][next.y].type==Pawn && arr[next.x-1][next.y].move==1 && arr[next.x-1][next.y].WB=='W'){
+                    arr[next.x-1][next.y].move=arr[next.x-1][next.y].type=arr[next.x-1][next.y].WB=0;
                     return 3;
+                }
             }
             if (arr[next.x][next.y].WB=='W')
                 return 0;
@@ -190,33 +194,40 @@ int Check(xy curr, xy next, wchar_t type){ // 각 말이 이동가능한지 체�
                 for (int j=1;j<=8;j++){
                     if (arr[i][j].WB!=turn[tmp]){
                         xy enemy={i,j};
-                        if (Check(enemy,curr,arr[i][j].type)) //현재 체크 상태인 경우 리턴 0
+                        if (Check(enemy,curr,arr[i][j].type)){ //현재 체크 상태인 경우 리턴 0
+                            arr[curr.x][curr.y]=arr[next.x][next.y];
+                            arr[next.x][next.y]=prev;
                             return 0;
+                        }
                         if (Check(enemy,next,arr[i][j].type)){ // 다음 이동이 자살일 경우 리턴 0
                             arr[curr.x][curr.y]=arr[next.x][next.y];
                             arr[next.x][next.y]=prev;
                             return 0;
                         }
-                        else{ //체크 상태도 아니고 다음 이동이 자살도 아닐 경우
-                            arr[curr.x][curr.y]=arr[next.x][next.y];
-                            arr[next.x][next.y]=prev;
-                            if (curr.y-next.y==2 && arr[curr.x][1].move==0) { //킹이 좌로 2칸 움직이고 룩이 이동한 적이 없을 때
-                                for(int i=curr.y-1;i>1;i--) { //킹과 룩 사이 기물 체크
-                                    if (arr[curr.x][i].type != 0)  //기물이 있으면 리턴 0
-                                        return 0;
-                                }
-                                return 4;
-                            }
-                            if (curr.y-next.y==-2 && arr[curr.x][8].move==0) { //킹이 우로 2칸 움직이고 룩이 이동한 적이 없을 때
-                                for(int i=curr.y+1;i<8;i++){ //킹과 룩 사이 기물 체크
-                                    if(arr[curr.x][i].type!=0)  //기물이 있으면 리턴 0
-                                        return 0;
-                                }
-                                return 5;
-                            }
-                        }
                     }
                 }
+            }
+            arr[curr.x][curr.y]=arr[next.x][next.y];
+            arr[next.x][next.y]=prev;
+            if (curr.y-next.y==2 && arr[curr.x][1].move==0){ //킹이 좌로 2칸 움직이고 룩이 이동한 적이 없을 때
+                for(int i=curr.y-1;i>1;i--){ //킹과 룩 사이 기물 체크
+                    if (arr[curr.x][i].type!=0)  //기물이 있으면 리턴 0
+                        return 0;
+                }
+                arr[next.x][next.y+1]=arr[curr.x][1];
+                arr[next.x][next.y+1].move++;
+                arr[curr.x][1].move=arr[curr.x][1].WB=arr[curr.x][1].type=0;
+                return 1;
+            }
+            if (curr.y-next.y==-2 && arr[curr.x][8].move==0){ //킹이 우로 2칸 움직이고 룩이 이동한 적이 없을 때
+                for(int i=curr.y+1;i<8;i++){ //킹과 룩 사이 기물 체크
+                    if(arr[curr.x][i].type!=0)  //기물이 있으면 리턴 0
+                        return 0;
+                }
+                arr[next.x][next.y-1]=arr[curr.x][8];
+                arr[next.x][next.y-1].move++;
+                arr[curr.x][8].move=arr[curr.x][8].WB=arr[curr.x][8].type=0;
+                return 1;
             }
         }
         if (abs(curr.x-next.x)<=1 && abs(curr.y-next.y)<=1){
@@ -259,26 +270,13 @@ int Move(xy ab, char c){ //이동
         return 1;
     }
     if (Check(curr,next,arr[curr.x][curr.y].type)){
-        if (Check(curr,next,arr[curr.x][curr.y].type)==2){
+        if (Check(curr,next,arr[curr.x][curr.y].type)==2){ // 승급
             wchar_t s[4] = {Queen, Bishop, Knight, Rook};
             int i;
             wprintf(L"폰 승급조건 달성\n");
             wprintf(L"승급 기물 선택(0 : 퀸, 1 : 비숍, 2 : 나이트, 3 : 룩) : ");
             scanf("%d",&i);
             arr[curr.x][curr.y].type=s[i];
-        }
-        else if (Check(curr,next,arr[curr.x][curr.y].type)==3){
-            arr[next.x+1][next.y].move=arr[next.x+1][next.y].type=arr[next.x+1][next.y].WB=0;
-        }
-        else if(Check(curr,next,arr[curr.x][curr.y].type)==4){
-            arr[next.x][next.y+1]=arr[curr.x][1];
-            arr[next.x][next.y+1].move++;
-            arr[curr.x][1].move=arr[curr.x][1].WB=arr[curr.x][1].type=0;
-        }
-        else if(Check(curr,next,arr[curr.x][curr.y].type)==5){
-            arr[next.x][next.y-1]=arr[curr.x][8];
-            arr[next.x][next.y-1].move++;
-            arr[curr.x][8].move=arr[curr.x][8].WB=arr[curr.x][8].type=0;
         }
         arr[next.x][next.y]=arr[curr.x][curr.y];
         arr[next.x][next.y].move++;
