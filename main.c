@@ -409,12 +409,12 @@ void Print(){// 출력
 
 int Stalemate(){ // 스테일메이트 판별
     xy nowking={0,0};
-    int chk[8]={0}, dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
+    int dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){ // 움직일수 있는 기물이 킹뿐인지 체크
         for (int j=1;j<=8;j++){
             if (arr[i][j].type==king && arr[i][j].WB==turn[tmp]) // 킹의 위치 저장
                 nowking.x=i, nowking.y=j;
-            else if (arr[i][j].WB==turn[tmp]){ // 다른기물이 있을경우 이동가능하면 탈출
+            else if (arr[i][j].WB==turn[tmp]){ // 다른아군이 있을경우 그 아군이 이동가능하면 탈출
                 xy curr={i,j};
                 for (int x=1;x<=8;x++){
                     for (int y=1;y<=8;y++){
@@ -428,41 +428,82 @@ int Stalemate(){ // 스테일메이트 판별
     }
     for (int i=0;i<8;i++){ // 킹이 이동가능한 칸이 한칸이라도 있는지 체크
         xy kingmove={nowking.x+dir[i][0],nowking.y+dir[i][1]};
-        if (Check(nowking,kingmove,king))
+        if (kingmove.x<1 || kingmove.y<1 || kingmove.x>8 || kingmove.y>8)
+            continue;
+        if (arr[kingmove.x][kingmove.y].WB!=turn[tmp] && Check(nowking,kingmove,king))
             return 0;
     }
     return 1;
 }
-/*
+
 int Checkmate(){ // 체크메이트 판별
     xy nowking={0,0};
-    int chk[9]={0}, dir[9][2]={{1,1},{1,0},{1,-1},{0,1},{0,0},{0,-1},{-1,1},{-1,0},{-1,-1}};
+    int dir[8][2]={{1,1},{1,0},{1,-1},{0,1},{0,-1},{-1,1},{-1,0},{-1,-1}};
     for (int i=1;i<=8;i++){
-        for (int j=1;j<=8;j++){
+        for (int j=1;j<=8;j++){ // 킹의 위치 저장
              if (arr[i][j].type==king && arr[i][j].WB==turn[tmp])
                 nowking.x=i,nowking.y=j;
         }
     }
+    for (int i=0;i<8;i++){ // 킹이 이동가능한 칸이 한칸이라도 있는지 체크
+        xy kingmove={nowking.x+dir[i][0],nowking.y+dir[i][1]};
+        if (kingmove.x<1 || kingmove.y<1 || kingmove.x>8 || kingmove.y>8)
+            continue;
+        if (arr[kingmove.x][kingmove.y].WB!=turn[tmp] && Check(nowking,kingmove,king))
+            return 0;
+    }
+
     for (int i=1;i<=8;i++){
         for (int j=1;j<=8;j++){
-            if (arr[i][j].WB!=turn[tmp]){
-                for (int k=0;k<9;k++){
-                    if (chk[k])
-                        continue;
-                    xy kingmove={nowking.x+dir[k][0],nowking.y+dir[k][1]}, enemy={i,j};
-                    if (Check(enemy,kingmove,arr[i][j].type))
-                        chk[k]=1;
+            if (arr[i][j].WB!=turn[tmp]){ 
+                xy enemy={i,j};
+                if (Check(enemy,nowking,arr[i][j].type)){ // 킹위치에 이동가능한 적말들 체크 (체크상태임을 확인가능)
+                    int chk=1;
+                    for (int x=1;x<=8;x++){
+                        for (int y=1;y<=8;y++){
+                            if (arr[i][j].WB==turn[tmp] && arr[i][j].type!=king){ // 자신을 제외한 아군말 위치 체크
+                                xy friend={x,y};
+                                for (int xx=1;xx<=8;xx++){
+                                    for (int yy=1;yy<=8;yy++){
+                                        xy friendmove={xx,yy};
+                                        if ((!(x==xx && y==yy)) && Check(friend,friendmove,arr[x][y].type)){ // 아군의 모든 이동 가능한경우 체크 (제자리 제외)
+                                            UNIT prev=arr[friendmove.x][friendmove.y];
+                                            arr[friendmove.x][friendmove.y]=arr[friend.x][friend.y];
+                                            arr[friend.x][friend.y].move=arr[friend.x][friend.y].type=arr[friend.x][friend.y].WB=0; // 임시로 아군말을 이동
+                                            if (!Check(enemy,nowking,arr[i][j].type)) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
+                                                chk=0;
+                                            arr[friend.x][friend.y]=arr[friendmove.x][friendmove.y]; // 제자리로 원위치
+                                            arr[friendmove.x][friendmove.y]=prev;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (chk) // 아군말로 막을수 있는경우가 하나도 없는경우
+                        return 1;
+                    //상대말 이동경로를 막을 수 있는 모든 우리말을 체크
                 }
             }
         }
     }
-    for (int i=0;i<9;i++){
-        if (!chk[i])
-            return 0;
-    }
-    return 1;
+    return 0; // 모든 공격이 다 막힐수 있을때
 }
-*/
+
+int Kingsdie(){
+    xy nowking={-1,-1};
+    for (int i=1;i<=8;i++){
+        for (int j=1;j<=8;j++){ // 킹의 위치 저장
+             if (arr[i][j].type==king && arr[i][j].WB!=turn[tmp])
+                nowking.x=i,nowking.y=j;
+        }
+    }
+    if (nowking.x==-1 && nowking.y==-1)
+        return 1;
+    return 0;
+}
+
+
 int main(){
     system("clear");
     Setting();
@@ -477,14 +518,22 @@ int main(){
             break;
         }
         while (Move(Scan(),turn[tmp]));
-        tmp^=1; // 턴이 넘어감
-        /*
-        if (Checkmate()){
-            wprintf(L"체크메이트 입니다. %s의 승리입니다.\n", player[tmp]);
+        if (Kingsdie()){
+            system("clear");
+            Print();
+            wprintf(L"킹을 죽였습니다. %s의 승리입니다.\n", player[tmp]);
             break;
         }
-        */
+        tmp^=1; // 턴이 넘어감
+        if (Checkmate()){
+            system("clear");
+            Print();
+            wprintf(L"체크메이트 입니다. %s의 승리입니다.\n", player[tmp^1]);
+            break;
+        }
         if (Stalemate()){
+            system("clear");
+            Print();
             wprintf(L"스테일메이트 입니다. 무승부입니다.\n");
             break;
         }
