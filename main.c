@@ -35,18 +35,17 @@ void Setting(void);
 void Print(void);
 xy Scan(void);
 int Check(xy curr, xy next, wchar_t type);
+int CheckMove(xy curr, xy next, wchar_t type);
 int Move(xy ab, char c);
-int KingDie(void);
 int Checkmate(void);
 int Stalemate(void);
-int Checkmove(xy curr, xy next, wchar_t type);
 
 
 /**
     @ 함수 이름: Main
     @ 함수 설명: 메인 함수
     @ 파라미터: X
-    @ 참조 함수들: Setting, Print, Move, KingDie, Checkmate, Stalemate
+    @ 참조 함수들: Setting, Print, Move, Checkmate, Stalemate
     @ exception 예외처리: X
     //
 **/
@@ -734,13 +733,93 @@ int Check(xy curr, xy next, wchar_t type)
 
 
 /**
+    @ 함수 이름: CheckMove
+    @ 함수 설명: 사용자가 체크 상태임에도 쓸데없는 말을 움직였는지를 구분하는 함수
+    @ 파라미터: curr, next, type
+        @ 파라미터 설명
+            @ curr: 이동하려는 말의 현재 위치 정보를 담고 있는 구조체 xy 변수
+            @ next: 말을 이동시키고자 하는 목적지의 위치 정보를 담고 있는 구조체 xy 변수
+            @ type: 이동하려는 말의 종류를 분류하는 wchar_t 변수
+    @ 참조 함수들: Check
+    @ exception 예외처리: X
+    //
+**/
+int CheckMove(xy curr, xy next, wchar_t type)
+{
+    xy nowKing = {-1, -1};
+    int chk = 0;
+
+    for (int i = 1; i <= 8; i++)
+    {
+        for (int j = 1; j <= 8; j++) // 킹의 위치 저장
+        {
+            if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp])
+            {
+                nowKing.x = i, nowKing.y = j;
+            }
+        }
+    }
+
+    for (int i = 1; i <= 8; i++)
+    {
+        for (int j = 1; j <= 8; j++)
+        {
+            if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
+            {
+                xy enemy = {i, j};
+
+                if (Check(enemy, nowKing, arr[i][j].type) != 0) // 현재 체크 상태인 경우
+                {
+                    chk = 1;
+                }
+
+            }
+        }
+    }
+
+    if (chk == 1)
+    {
+        UNIT prev = arr[next.x][next.y];
+        arr[next.x][next.y] = arr[curr.x][curr.y];
+        arr[curr.x][curr.y].move = arr[curr.x][curr.y].type = arr[curr.x][curr.y].WB = 0;
+
+        for (int i = 1; i <= 8; i++)
+        {
+            for (int j = 1; j <= 8; j++)
+            {
+                if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
+                {
+                    xy enemy = {i, j};
+
+                    if (Check(enemy, nowKing, arr[i][j].type) != 0) // 이동 이후에도 체크 상태인 경우
+                    {
+                        chk = 1;
+                    }
+
+                }
+            }
+        }
+        arr[curr.x][curr.y] = arr[next.x][next.y];
+        arr[next.x][next.y] = prev;
+
+        if (chk == 1)
+        {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+
+/**
     @ 함수 이름: Move
     @ 함수 설명: 사용자가 선택한 말이 선택한 위치로 이동 가능한지 확인하는 함수
     @ 파라미터: ab, c
         @ 파라미터 설명
             @ ab: 사용자로부터 입력 받은 이동하고자 하는 말과 이동하고자 하는 위치 정보를 저장하고 있는 구조체 xy 변수
             @ c: 현재 어느 플레이어의 차례인지를 구분하는 char 변수
-    @ 참조 함수들: Check
+    @ 참조 함수들: Check, CheckMove
     @ exception 예외처리: X
     //
 **/
@@ -781,7 +860,7 @@ int Move(xy ab, char c)
             arr[curr.x][curr.y].type = s[i];
         }
 
-        if (Checkmove(curr, next, arr[curr.x][curr.y].type) == 1)
+        if (CheckMove(curr, next, arr[curr.x][curr.y].type) == 1)
         {
             wprintf(L"킹이 체크 상태입니다. 다시 입력해 주세요.\n");
 
@@ -963,68 +1042,4 @@ int Stalemate(void)
     }
 
     return 1;
-}
-
-
-int Checkmove(xy curr, xy next, wchar_t type){
-    xy nowKing = {-1, -1};
-    int chk = 0;
-    for (int i = 1; i <= 8; i++)
-    {
-        for (int j = 1; j <= 8; j++) // 킹의 위치 저장
-        {
-            if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp])
-            {
-                nowKing.x = i, nowKing.y = j;
-            }
-        }
-    }
-
-    for (int i = 1; i <= 8; i++)
-    {
-        for (int j = 1; j <= 8; j++)
-        {
-            if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
-            {
-                xy enemy = {i, j};
-
-                if (Check(enemy, nowKing, arr[i][j].type) != 0) // 현재 체크 상태인 경우
-                {
-                    chk = 1;
-                }
-
-            }
-        }
-    }
-
-    if (chk == 1)
-    {
-        UNIT prev = arr[next.x][next.y];
-        arr[next.x][next.y] = arr[curr.x][curr.y];
-        arr[curr.x][curr.y].move = arr[curr.x][curr.y].type = arr[curr.x][curr.y].WB = 0;
-        for (int i = 1; i <= 8; i++)
-        {
-            for (int j = 1; j <= 8; j++)
-            {
-                if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
-                {
-                    xy enemy = {i, j};
-
-                    if (Check(enemy, nowKing, arr[i][j].type) != 0) // 이동 이후에도 체크 상태인 경우
-                    {
-                        chk = 1;
-                    }
-
-                }
-            }
-        }
-        arr[curr.x][curr.y] = arr[next.x][next.y];
-        arr[next.x][next.y] = prev;
-
-        if (chk == 1)
-        {
-            return 1;
-        }
-    }
-    return 0;
 }
