@@ -77,7 +77,7 @@ int main(void)
         {
             system("clear");
             Print();
-            wprintf(L"체크메이트 입니다. %s의 승리입니다.\n", player[tmp ^ 1]);
+            wprintf(L"\n체크메이트 입니다. %s의 승리입니다.\n\n", player[tmp ^ 1]);
             break;
         }
 
@@ -85,12 +85,12 @@ int main(void)
         {
             system("clear");
             Print();
-            wprintf(L"스테일메이트 입니다. 무승부입니다.\n");
+            wprintf(L"\n스테일메이트 입니다. 무승부입니다.\n\n");
             break;
         }
     }
 
-    wprintf(L"게임이 종료됩니다.");
+    wprintf(L"게임이 종료됩니다.\n");
 
     return 0;
 }
