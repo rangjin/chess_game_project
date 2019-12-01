@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <math.h>
 #include <wchar.h>
 #include <windows.h>
 #include <string.h>
@@ -72,14 +73,6 @@ int main(void)
             ; // NULL
         }
 
-        if (KingDie() == 1)
-        {
-            system("clear");
-            Print();
-            wprintf(L"킹을 죽였습니다. %s의 승리입니다.\n", player[tmp]);
-            break;
-        }
-
         tmp ^= 1; // 턴이 넘어감
 
         if (Checkmate() == 1)
@@ -133,7 +126,7 @@ void Setting(void)
         arr[2][i].WB = arr[1][i].WB = 'B';
         arr[7][i].WB = arr[8][i].WB = 'W';
     }
-
+    
     wprintf(L"player 1: ");
     scanf("%s", player[0]);
     wprintf(L"player 2: ");
@@ -443,7 +436,7 @@ int Check(xy curr, xy next, wchar_t type)
                 {
                     arr[next.x - 1][next.y].move = arr[next.x - 1][next.y].type = arr[next.x - 1][next.y].WB = 0;
 
-                    return 3;
+                    return 1;
                 }
             }
 
@@ -615,6 +608,25 @@ int Check(xy curr, xy next, wchar_t type)
     }
     else if (type == KING) // 킹
     {
+        int dir[8][2] = { {1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1} };
+        for (int i = 1; i <= 8; i++) // 상대킹 주위에는 이동못하게 막음
+        {
+            for (int j = 1; j <= 8; j++)
+            {
+                if (arr[curr.x][curr.y].WB != arr[i][j].WB && arr[i][j].type == KING)
+                {
+                    for (int k = 0; k < 8; k++)
+                    {
+                        xy enemykingmove = {i + dir[k][0], j + dir[k][1]};
+                        if (next.x == enemykingmove.x && next.y == enemykingmove.y)
+                        {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        }
+
         if (curr.x == next.x && arr[curr.x][curr.y].move == 0) // 킹이 좌우로 움직이고 킹이 이동한 적이 없을 때
         {
             UNIT prev = arr[next.x][next.y];
@@ -625,11 +637,11 @@ int Check(xy curr, xy next, wchar_t type)
             {
                 for (int j = 1; j <= 8; j++)
                 {
-                    if (arr[i][j].WB != turn[tmp])
+                    if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
                     {
                         xy enemy = {i, j};
 
-                        if (Check(enemy, curr, arr[i][j].type) == 1) // 현재 체크 상태인 경우 리턴 0
+                        if (Check(enemy, curr, arr[i][j].type) != 0) // 현재 체크 상태인 경우 리턴 0
                         {
                             arr[curr.x][curr.y] = arr[next.x][next.y];
                             arr[next.x][next.y] = prev;
@@ -637,7 +649,7 @@ int Check(xy curr, xy next, wchar_t type)
                             return 0;
                         }
 
-                        if (Check(enemy, next, arr[i][j].type) == 1) // 다음 이동이 자살일 경우 리턴 0
+                        if (Check(enemy, next, arr[i][j].type) != 0) // 다음 이동이 자살일 경우 리턴 0
                         {
                             arr[curr.x][curr.y] = arr[next.x][next.y];
                             arr[next.x][next.y] = prev;
@@ -651,7 +663,7 @@ int Check(xy curr, xy next, wchar_t type)
             arr[curr.x][curr.y] = arr[next.x][next.y];
             arr[next.x][next.y] = prev;
 
-            if (curr.y - next.y == 2 && arr[curr.x][1].move == 0) // 킹이 좌로 2칸 움직이고 룩이 이동한 적이 없을 때
+            if (curr.y - next.y == 2 && arr[curr.x][1].type == ROOK && arr[curr.x][1].move == 0) // 킹이 좌로 2칸 움직이고 룩이 이동한 적이 없을 때
             {
                 for (int i = curr.y - 1; i > 1; i--) // 킹과 룩 사이 기물 체크
                 {
@@ -668,7 +680,7 @@ int Check(xy curr, xy next, wchar_t type)
                 return 1;
             }
 
-            if (curr.y-next.y == -2 && arr[curr.x][8].move == 0) // 킹이 우로 2칸 움직이고 룩이 이동한 적이 없을 때
+            if (curr.y-next.y == -2 && arr[curr.x][8].type == ROOK && arr[curr.x][8].move == 0) // 킹이 우로 2칸 움직이고 룩이 이동한 적이 없을 때
             {
                 for(int i = curr.y + 1; i < 8; i++)  // 킹과 룩 사이 기물 체크
                 {
@@ -696,11 +708,11 @@ int Check(xy curr, xy next, wchar_t type)
             {
                 for (int j = 1; j <= 8; j++)
                 {
-                    if (arr[i][j].WB != turn[tmp])
+                    if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
                     {
                         xy enemy={i, j};
 
-                        if (Check(enemy, next, arr[i][j].type) == 1)
+                        if (Check(enemy, next, arr[i][j].type) != 0)
                         {
                             arr[curr.x][curr.y] = arr[next.x][next.y];
                             arr[next.x][next.y] = prev;
@@ -756,7 +768,7 @@ int Move(xy ab, char c)
         return 1;
     }
 
-    if (Check(curr, next, arr[curr.x][curr.y].type) == 1)
+    if (Check(curr, next, arr[curr.x][curr.y].type) != 0)
     {
         if (Check(curr, next, arr[curr.x][curr.y].type) == 2) // 승급
         {
@@ -766,6 +778,13 @@ int Move(xy ab, char c)
             wprintf(L"승급 기물 선택(0 : 퀸, 1 : 비숍, 2 : 나이트, 3 : 룩) : ");
             scanf("%d", &i);
             arr[curr.x][curr.y].type = s[i];
+        }
+
+        if (Checkmove(curr, next, arr[curr.x][curr.y].type) == 1)
+        {
+            wprintf(L"킹이 체크 상태입니다. 다시 입력해 주세요.\n");
+
+            return 1;
         }
 
         arr[next.x][next.y] = arr[curr.x][curr.y];
@@ -781,38 +800,6 @@ int Move(xy ab, char c)
 
         return 1;
     }
-}
-
-
-/**
-    @ 함수 이름: KingDie
-    @ 함수 설명: 킹이 죽었는지를 판별하는 함수
-    @ 파라미터: X
-    @ 참조 함수들: X
-    @ exception 예외처리: X
-    //
-**/
-int KingDie(void)
-{
-    xy nowKing = {-1, -1};
-
-    for (int i = 1; i <= 8; i++)
-    {
-        for (int j = 1; j <= 8; j++) // 킹의 위치 저장
-        {
-            if (arr[i][j].type == KING && arr[i][j].WB != turn[tmp])
-            {
-                nowKing.x = i, nowKing.y = j;
-            }
-        }
-    }
-
-    if (nowKing.x == -1 && nowKing.y == -1)
-    {
-        return 1;
-    }
-
-    return 0;
 }
 
 
@@ -849,7 +836,7 @@ int Checkmate(void)
             continue;
         }
 
-        if (arr[kingmove.x][kingmove.y].WB != turn[tmp] && Check(nowKing, kingmove, KING) == 1)
+        if (arr[kingmove.x][kingmove.y].WB != turn[tmp] && Check(nowKing, kingmove, KING) != 0)
         {
             return 0;
         }
@@ -859,11 +846,11 @@ int Checkmate(void)
     {
         for (int j = 1; j <= 8; j++)
         {
-            if (arr[i][j].WB != turn[tmp])
+            if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
             { 
                 xy enemy = {i, j};
 
-                if (Check(enemy, nowKing, arr[i][j].type) == 1) // 킹위치에 이동가능한 적말들 체크 (체크상태임을 확인가능)
+                if (Check(enemy, nowKing, arr[i][j].type) != 0) // 킹위치에 이동가능한 적말들 체크 (체크상태임을 확인가능)
                 {
                     int chk = 1;
 
@@ -881,7 +868,7 @@ int Checkmate(void)
                                     {
                                         xy friendMove = {m, n};
 
-                                        if ((!(x == m && y == n)) && Check(friend, friendMove, arr[x][y].type) == 1) // 아군의 모든 이동 가능한경우 체크 (제자리 제외)
+                                        if ((!(x == m && y == n)) && Check(friend, friendMove, arr[x][y].type) != 0) // 아군의 모든 이동 가능한경우 체크 (제자리 제외)
                                         {
                                             UNIT prev = arr[friendMove.x][friendMove.y];
 
@@ -889,7 +876,7 @@ int Checkmate(void)
                                             arr[friendMove.x][friendMove.y] = arr[friend.x][friend.y];
                                             arr[friend.x][friend.y].move = arr[friend.x][friend.y].type = arr[friend.x][friend.y].WB = 0; 
 
-                                            if (Check(enemy, nowKing, arr[i][j].type) != 1) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
+                                            if (!Check(enemy, nowKing, arr[i][j].type)) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
                                             {
                                                 chk = 0;
                                             }
@@ -928,7 +915,7 @@ int Checkmate(void)
 **/
 int Stalemate(void)
 {
-    xy nowKing = {0, 0};
+    xy nowKing = {-1, -1};
     int dir[8][2] = { {1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1} };
 
     for (int i = 1; i <= 8; i++) // 움직일수 있는 기물이 킹뿐인지 체크
@@ -949,7 +936,7 @@ int Stalemate(void)
                     {
                         xy next = {x, y};
 
-                        if (Check(curr, next, arr[i][j].type) == 1)
+                        if (Check(curr, next, arr[i][j].type) != 0)
                         {
                             return 0;
                         }
@@ -968,11 +955,75 @@ int Stalemate(void)
             continue;
         }
 
-        if (arr[kingMove.x][kingMove.y].WB != turn[tmp] && Check(nowKing, kingMove, KING) == 1)
+        if (arr[kingMove.x][kingMove.y].WB != turn[tmp] && Check(nowKing, kingMove, KING) != 0)
         {
             return 0;
         }
     }
 
     return 1;
+}
+
+
+int Checkmove(xy curr, xy next, wchar_t type){
+    xy nowKing = {-1, -1};
+    int chk = 0;
+    for (int i = 1; i <= 8; i++)
+    {
+        for (int j = 1; j <= 8; j++) // 킹의 위치 저장
+        {
+            if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp])
+            {
+                nowKing.x = i, nowKing.y = j;
+            }
+        }
+    }
+
+    for (int i = 1; i <= 8; i++)
+    {
+        for (int j = 1; j <= 8; j++)
+        {
+            if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
+            {
+                xy enemy = {i, j};
+
+                if (Check(enemy, nowKing, arr[i][j].type) != 0) // 현재 체크 상태인 경우
+                {
+                    chk = 1;
+                }
+
+            }
+        }
+    }
+
+    if (chk == 1)
+    {
+        UNIT prev = arr[next.x][next.y];
+        arr[next.x][next.y] = arr[curr.x][curr.y];
+        arr[curr.x][curr.y].move = arr[curr.x][curr.y].type = arr[curr.x][curr.y].WB = 0;
+        for (int i = 1; i <= 8; i++)
+        {
+            for (int j = 1; j <= 8; j++)
+            {
+                if (arr[i][j].WB != turn[tmp] && arr[i][j].type != KING)
+                {
+                    xy enemy = {i, j};
+
+                    if (Check(enemy, nowKing, arr[i][j].type) != 0) // 이동 이후에도 체크 상태인 경우
+                    {
+                        chk = 1;
+                    }
+
+                }
+            }
+        }
+        arr[curr.x][curr.y] = arr[next.x][next.y];
+        arr[next.x][next.y] = prev;
+
+        if (chk == 1)
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
