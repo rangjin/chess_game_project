@@ -39,6 +39,7 @@ int Move(xy ab, char c);
 int KingDie(void);
 int Checkmate(void);
 int Stalemate(void);
+int Checkmove(xy curr, xy next, wchar_t type);
 
 
 /**
