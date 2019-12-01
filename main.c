@@ -23,12 +23,12 @@ typedef struct xy{
 typedef struct UNIT{
     int move; // 이동횟수
     wchar_t type; // 말의 종류
-    char WB; // 말의종류, 색깔
+    char WB; // 기물의 색
 }UNIT;
 
 UNIT arr[10][10]; // 체스판
-char turn[3] = "WB", player[2][20] = { };
-int tmp = 0; // 턴 표시 1 = 검, 0 = 흰
+char turn[3] = "WB", player[2][20] = {};
+int tmp = 0; // 턴 표시(1 = 검, 2 = 흰)
 
 void Setting(void);
 void Print(void);
@@ -36,8 +36,8 @@ xy Scan(void);
 int Check(xy curr, xy next, wchar_t type);
 int Move(xy ab, char c);
 int KingDie(void);
-int Stalemate(void);
 int Checkmate(void);
+int Stalemate(void);
 
 
 /**
@@ -59,9 +59,9 @@ int main(void)
         system("clear");
         Print();
         wprintf(L"항복하기 : 1\n");
-        scanf("%d",&a);
+        scanf("%d", &a);
 
-        if (a)
+        if (a == 1)
         {
             wprintf(L"%s이 항복했습니다. %s의 승리입니다.\n", player[tmp], player[tmp ^ 1]);
             break;
@@ -72,16 +72,17 @@ int main(void)
             ; // NULL
         }
 
-        if (KingDie())
+        if (KingDie() == 1)
         {
             system("clear");
             Print();
             wprintf(L"킹을 죽였습니다. %s의 승리입니다.\n", player[tmp]);
             break;
         }
+
         tmp ^= 1; // 턴이 넘어감
 
-        if (Checkmate())
+        if (Checkmate() == 1)
         {
             system("clear");
             Print();
@@ -89,7 +90,7 @@ int main(void)
             break;
         }
 
-        if (Stalemate())
+        if (Stalemate() == 1)
         {
             system("clear");
             Print();
@@ -97,14 +98,16 @@ int main(void)
             break;
         }
     }
+
     wprintf(L"게임이 종료됩니다.");
+
     return 0;
 }
 
 
 /**
     @ 함수 이름: Setting
-    @ 함수 설명: 게임 시작 시 말 위치를 설정하는 함수
+    @ 함수 설명: 게임 시작 시 말 위치를 설정하고 플레이어 2명의 이름을 입력받는 함수
     @ 파라미터: X
     @ 참조 함수들: X
     @ exception 예외처리: X
@@ -130,6 +133,7 @@ void Setting(void)
         arr[2][i].WB = arr[1][i].WB = 'B';
         arr[7][i].WB = arr[8][i].WB = 'W';
     }
+
     wprintf(L"player 1: ");
     scanf("%s", player[0]);
     wprintf(L"player 2: ");
@@ -166,6 +170,7 @@ void Print(void)
     {
         b = strlen(player[1]);
     }
+
     setlocale(LC_CTYPE,"");
     wprintf(L"      [A]  [B]  [C]  [D]  [E]  [F]  [G]  [H]\n");
     wprintf(L"   ");
@@ -177,6 +182,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\x1b[37m");
         wprintf(L"%s", player[1]);
         tmp ? MAKE_BLUE() : MAKE_RED();
@@ -185,6 +191,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\n");
     }
     else
@@ -193,6 +200,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\x1b[37m");
         wprintf(L"%s", player[1]);
         tmp ? MAKE_BLUE() : MAKE_RED();
@@ -201,8 +209,10 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\n");
     }
+
     MAKE_BLACK();
 
     for (int i = 1; i <= 8; i++)
@@ -217,6 +227,7 @@ void Print(void)
             wprintf(L"     ");
             MAKE_BLACK();
         }
+
         tmp ? MAKE_BLUE() : MAKE_RED();
         wprintf(L"##\n");
         MAKE_BLACK();
@@ -243,6 +254,7 @@ void Print(void)
                 MAKE_BLACK();
             }
         }
+
         tmp ? MAKE_BLUE() : MAKE_RED();
         wprintf(L"##");
         MAKE_BLACK();
@@ -257,10 +269,12 @@ void Print(void)
             wprintf(L"     ");
             MAKE_BLACK();
         }
+
         tmp ? MAKE_BLUE() : MAKE_RED();
         wprintf(L"##\n");
         MAKE_BLACK();
     }
+
     wprintf(L"   ");
     tmp ? MAKE_BLUE() : MAKE_RED();
 
@@ -270,6 +284,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\x1b[37m");
         wprintf(L"%s", player[0]);
         tmp ? MAKE_BLUE() : MAKE_RED();
@@ -278,6 +293,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\n");
     }
     else
@@ -286,6 +302,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\x1b[37m");
         wprintf(L"%s", player[0]);
         tmp ? MAKE_BLUE() : MAKE_RED();
@@ -294,6 +311,7 @@ void Print(void)
         {
             wprintf(L"#");
         }
+
         wprintf(L"\n");
     }
     MAKE_BLACK();
@@ -313,7 +331,9 @@ xy Scan(void)
 {
     char a, b;
     xy ab;
+
     scanf(" %c%d %c%d", &a, &ab.x, &b, &ab.y);
+
     ab.x = 9 - ab.x, ab.y = 9 - ab.y;
     ab.x *= 10, ab.y *= 10;
 
@@ -334,6 +354,7 @@ xy Scan(void)
     {
         ab.y += (b - 'A' + 1);
     }
+
     return ab;
 }
 
@@ -344,24 +365,26 @@ xy Scan(void)
     @ 파라미터: curr, next, type
         @ 파라미터 설명
             @ curr: 이동하려는 말의 현재 위치 정보를 담고 있는 구조체 xy 변수
-            @ next: 이동하고자 하는 목적지의 위치 정보를 담고 있는 구조체 xy 변수
-            @ type: 이동하려는 말의 기물을 분류하는 wchar_t 변수
+            @ next: 말을 이동시키고자 하는 목적지의 위치 정보를 담고 있는 구조체 xy 변수
+            @ type: 이동하려는 말의 종류를 분류하는 wchar_t 변수
     @ 참조 함수들: Check
     @ exception 예외처리: X
     //
 **/
 int Check(xy curr, xy next, wchar_t type)
 {
-    if (type == PAWN)
-    { // 폰
-        if (arr[curr.x][curr.y].WB == 'W')
-        { // 흰색
+    // 이동이 가능할 경우 return 1, 불가능할 경우 return 0
+    
+    if (type == PAWN) // 폰
+    {
+        if (arr[curr.x][curr.y].WB == 'W') // 흰색
+        {
         
             if (next.x - curr.x == -1 && (next.y - curr.y == 1 || next.y - curr.y == -1))
             {
                 if (arr[next.x][next.y].WB == 'B')
                 {
-                    if (next.x == 1)
+                    if (next.x == 1) // 승급
                     {
                         return 2;
                     }
@@ -370,11 +393,12 @@ int Check(xy curr, xy next, wchar_t type)
                         return 1;
                     }
                 }
-            }
-            else if (next.x == 3 && arr[next.x + 1][next.y].type == PAWN && arr[next.x + 1][next.y].move == 1 && arr[next.x + 1][next.y].WB == 'B')
-            {
-                arr[next.x + 1][next.y].move = arr[next.x + 1][next.y].type = arr[next.x + 1][next.y].WB = 0;
-                return 1;
+                else if (next.x == 3 && arr[next.x + 1][next.y].type == PAWN && arr[next.x + 1][next.y].move == 1 && arr[next.x + 1][next.y].WB == 'B')
+                {
+                    arr[next.x + 1][next.y].move = arr[next.x + 1][next.y].type = arr[next.x + 1][next.y].WB = 0;
+
+                    return 1;
+                }
             }
 
             if (arr[next.x][next.y].WB == 'B')
@@ -406,27 +430,33 @@ int Check(xy curr, xy next, wchar_t type)
             {
                 if (arr[next.x][next.y].WB == 'W')
                 {
-                    if (next.x == 8) {
+                    if (next.x == 8)
+                    {
                         return 2;
                     }
-                    else {
+                    else
+                    {
                         return 1;
                     }
                 }
                 else if (next.x == 6 && arr[next.x - 1][next.y].type == PAWN && arr[next.x - 1][next.y].move == 1 && arr[next.x - 1][next.y].WB == 'W')
                 {
                     arr[next.x - 1][next.y].move = arr[next.x - 1][next.y].type = arr[next.x - 1][next.y].WB = 0;
+
                     return 3;
                 }
             }
+
             if (arr[next.x][next.y].WB == 'W')
             {
                 return 0;
             }
+
             if (arr[curr.x][curr.y].move == 0 && next.x - curr.x == 2 && curr.y == next.y)
             {
                 return 1;
             }
+
             if (next.x-curr.x == 1 && curr.y == next.y)
             {
                 if(next.x == 8)
@@ -462,6 +492,7 @@ int Check(xy curr, xy next, wchar_t type)
             while (1)
             {
                 testY += y;
+
                 if (testY == next.y)
                 {
                     return 1;
@@ -480,6 +511,7 @@ int Check(xy curr, xy next, wchar_t type)
             while (1)
             {
                 testX += x;
+
                 if (testX == next.x)
                 {
                     return 1;
@@ -504,6 +536,7 @@ int Check(xy curr, xy next, wchar_t type)
             {
                 testX += x;
                 testY += y;
+
                 if (testX == next.x && testY == next.y)
                 {
                     return 1;
@@ -525,6 +558,7 @@ int Check(xy curr, xy next, wchar_t type)
             while (1)
             {
                 testY += y;
+
                 if (testY == next.y)
                 {
                     return 1;
@@ -539,9 +573,11 @@ int Check(xy curr, xy next, wchar_t type)
         {
             int x = curr.x < next.x ? 1 : -1;
             int testX = curr.x;
+
             while (1)
             {
                 testX += x;
+
                 if (testX == next.x)
                 {
                     return 1;
@@ -564,6 +600,7 @@ int Check(xy curr, xy next, wchar_t type)
             {
                 testX += x;
                 testY += y;
+
                 if (testX == next.x && testY == next.y)
                 {
                     return 1;
@@ -592,22 +629,25 @@ int Check(xy curr, xy next, wchar_t type)
                     {
                         xy enemy = {i, j};
 
-                        if (Check(enemy, curr, arr[i][j].type)) // 현재 체크 상태인 경우 리턴 0
+                        if (Check(enemy, curr, arr[i][j].type) == 1) // 현재 체크 상태인 경우 리턴 0
                         {
                             arr[curr.x][curr.y] = arr[next.x][next.y];
                             arr[next.x][next.y] = prev;
+
                             return 0;
                         }
 
-                        if (Check(enemy, next, arr[i][j].type)) // 다음 이동이 자살일 경우 리턴 0
+                        if (Check(enemy, next, arr[i][j].type) == 1) // 다음 이동이 자살일 경우 리턴 0
                         {
                             arr[curr.x][curr.y] = arr[next.x][next.y];
                             arr[next.x][next.y] = prev;
+
                             return 0;
                         }
                     }
                 }
             }
+            
             arr[curr.x][curr.y] = arr[next.x][next.y];
             arr[next.x][next.y] = prev;
 
@@ -620,9 +660,11 @@ int Check(xy curr, xy next, wchar_t type)
                         return 0;
                     }
                 }
+
                 arr[next.x][next.y + 1] = arr[curr.x][1];
                 arr[next.x][next.y + 1].move++;
                 arr[curr.x][1].move = arr[curr.x][1].WB = arr[curr.x][1].type = 0;
+
                 return 1;
             }
 
@@ -635,9 +677,11 @@ int Check(xy curr, xy next, wchar_t type)
                         return 0;
                     }
                 }
+
                 arr[next.x][next.y - 1] = arr[curr.x][8];
                 arr[next.x][next.y - 1].move++;
                 arr[curr.x][8].move = arr[curr.x][8].WB = arr[curr.x][8].type = 0;
+
                 return 1;
             }
         }
@@ -647,6 +691,7 @@ int Check(xy curr, xy next, wchar_t type)
             UNIT prev = arr[next.x][next.y];
             arr[next.x][next.y] = arr[curr.x][curr.y];
             arr[curr.x][curr.y].move = arr[curr.x][curr.y].type = arr[curr.x][curr.y].WB = 0;
+
             for (int i = 1; i <= 8; i++)
             {
                 for (int j = 1; j <= 8; j++)
@@ -655,7 +700,7 @@ int Check(xy curr, xy next, wchar_t type)
                     {
                         xy enemy={i, j};
 
-                        if (Check(enemy, next, arr[i][j].type))
+                        if (Check(enemy, next, arr[i][j].type) == 1)
                         {
                             arr[curr.x][curr.y] = arr[next.x][next.y];
                             arr[next.x][next.y] = prev;
@@ -664,11 +709,12 @@ int Check(xy curr, xy next, wchar_t type)
                     }
                 }
             }
+
             arr[curr.x][curr.y] = arr[next.x][next.y];
             arr[next.x][next.y] = prev;
+
             return 1;
         }
-        // 가능하다면 return 1;
     }
     return 0;
 }
@@ -679,7 +725,7 @@ int Check(xy curr, xy next, wchar_t type)
     @ 함수 설명: 사용자가 선택한 말이 선택한 위치로 이동 가능한지 확인하는 함수
     @ 파라미터: ab, c
         @ 파라미터 설명
-            @ ab: 구조체 xy 변수
+            @ ab: 사용자로부터 입력 받은 이동하고자 하는 말과 이동하고자 하는 위치 정보를 저장하고 있는 구조체 xy 변수
             @ c: 현재 어느 플레이어의 차례인지를 구분하는 char 변수
     @ 참조 함수들: Check
     @ exception 예외처리: X
@@ -688,22 +734,29 @@ int Check(xy curr, xy next, wchar_t type)
 int Move(xy ab, char c)
 {
     xy curr = {ab.x / 10, ab.x % 10}, next = {ab.y / 10, ab.y % 10};
+
     if (curr.x < 1 || curr.x > 8 || curr.y < 1 || curr.y > 8 || next.x < 1 || next.x > 8 || next.y < 1 || next.y > 8)
     {
         wprintf(L"체스판 밖입니다. 다시 입력해 주세요.\n");
+
         return 1;
     }
+
     if (c != arr[curr.x][curr.y].WB)
     {
         wprintf(L"자신의 말이 아닙니다. 다시 입력해 주세요.\n");
+
         return 1;
     }
+
     if (arr[curr.x][curr.y].WB == arr[next.x][next.y].WB)
     {
         wprintf(L"이미 아군말이 존재하는 위치입니다. 다시 입력해 주세요.\n");
+
         return 1;
     }
-    if (Check(curr, next, arr[curr.x][curr.y].type))
+
+    if (Check(curr, next, arr[curr.x][curr.y].type) == 1)
     {
         if (Check(curr, next, arr[curr.x][curr.y].type) == 2) // 승급
         {
@@ -714,15 +767,18 @@ int Move(xy ab, char c)
             scanf("%d", &i);
             arr[curr.x][curr.y].type = s[i];
         }
+
         arr[next.x][next.y] = arr[curr.x][curr.y];
         arr[next.x][next.y].move++;
         arr[curr.x][curr.y].move = arr[curr.x][curr.y].type = arr[curr.x][curr.y].WB = 0;
         wprintf(L"%c%d의 말이 %c%d로 이동되었습니다.\n", ab.x % 10 - 1 + 'A', 9 - ab.x / 10, ab.y % 10 - 1 + 'A', 9 - ab.y / 10);
+
         return 0;
     }
     else
     {
         wprintf(L"이동이 불가능한 위치입니다. 다시 입력해 주세요.\n");
+
         return 1;
     }
 }
@@ -739,6 +795,7 @@ int Move(xy ab, char c)
 int KingDie(void)
 {
     xy nowKing = {-1, -1};
+
     for (int i = 1; i <= 8; i++)
     {
         for (int j = 1; j <= 8; j++) // 킹의 위치 저장
@@ -754,63 +811,8 @@ int KingDie(void)
     {
         return 1;
     }
+
     return 0;
-}
-
-
-/**
-    @ 함수 이름: Stalemate
-    @ 함수 설명: 스테일메이트 상황인지를 판별하는 함수
-    @ 파라미터: X
-    @ 참조 함수들: Check
-    @ exception 예외처리: X
-    //
-**/
-int Stalemate(void)
-{
-    xy nowKing={0, 0};
-    int dir[8][2] = { {1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1} };
-
-    for (int i = 1; i <= 8; i++) // 움직일수 있는 기물이 킹뿐인지 체크
-    {
-        for (int j = 1; j <= 8; j++)
-        {
-            if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp]) // 킹의 위치 저장
-            {
-                nowKing.x = i, nowKing.y = j;
-            }
-            else if (arr[i][j].WB == turn[tmp]) // 다른아군이 있을경우 그 아군이 이동가능하면 탈출
-            {
-                xy curr={i, j};
-
-                for (int x = 1; x <= 8; x++)
-                {
-                    for (int y = 1; y <= 8; y++)
-                    {
-                        xy next = {x, y};
-
-                        if (Check(curr, next, arr[i][j].type))
-                        {
-                            return 0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    for (int i = 0; i < 8; i++) // 킹이 이동가능한 칸이 한칸이라도 있는지 체크
-    {
-        xy kingMove={nowKing.x + dir[i][0], nowKing.y + dir[i][1]};
-        if (kingMove.x < 1 || kingMove.y < 1 || kingMove.x > 8 || kingMove.y > 8)
-        {
-            continue;
-        }
-        if (arr[kingMove.x][kingMove.y].WB != turn[tmp] && Check(nowKing, kingMove, KING))
-        {
-            return 0;
-        }
-    }
-    return 1;
 }
 
 
@@ -831,21 +833,23 @@ int Checkmate(void)
     {
         for (int j = 1; j <= 8; j++) // 킹의 위치 저장
         {
-             if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp])
-             {
+            if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp])
+            {
                 nowKing.x = i, nowKing.y = j;
-             }
+            }
         }
     }
 
     for (int i = 0; i < 8; i++) // 킹이 이동가능한 칸이 한칸이라도 있는지 체크
     {
         xy kingmove = {nowKing.x + dir[i][0], nowKing.y + dir[i][1]};
+
         if (kingmove.x < 1 || kingmove.y < 1 || kingmove.x > 8 || kingmove.y > 8)
         {
             continue;
         }
-        if (arr[kingmove.x][kingmove.y].WB != turn[tmp] && Check(nowKing, kingmove, KING))
+
+        if (arr[kingmove.x][kingmove.y].WB != turn[tmp] && Check(nowKing, kingmove, KING) == 1)
         {
             return 0;
         }
@@ -859,7 +863,7 @@ int Checkmate(void)
             { 
                 xy enemy = {i, j};
 
-                if (Check(enemy, nowKing, arr[i][j].type)) // 킹위치에 이동가능한 적말들 체크 (체크상태임을 확인가능)
+                if (Check(enemy, nowKing, arr[i][j].type) == 1) // 킹위치에 이동가능한 적말들 체크 (체크상태임을 확인가능)
                 {
                     int chk = 1;
 
@@ -877,17 +881,21 @@ int Checkmate(void)
                                     {
                                         xy friendMove = {m, n};
 
-                                        if ((!(x == m && y == n)) && Check(friend, friendMove, arr[x][y].type)) // 아군의 모든 이동 가능한경우 체크 (제자리 제외)
+                                        if ((!(x == m && y == n)) && Check(friend, friendMove, arr[x][y].type) == 1) // 아군의 모든 이동 가능한경우 체크 (제자리 제외)
                                         {
                                             UNIT prev = arr[friendMove.x][friendMove.y];
-                                            arr[friendMove.x][friendMove.y] = arr[friend.x][friend.y];
-                                            arr[friend.x][friend.y].move = arr[friend.x][friend.y].type = arr[friend.x][friend.y].WB = 0; // 임시로 아군말을 이동
 
-                                            if (!Check(enemy, nowKing, arr[i][j].type)) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
+                                            // 임시로 아군말을 이동
+                                            arr[friendMove.x][friendMove.y] = arr[friend.x][friend.y];
+                                            arr[friend.x][friend.y].move = arr[friend.x][friend.y].type = arr[friend.x][friend.y].WB = 0; 
+
+                                            if (Check(enemy, nowKing, arr[i][j].type) != 1) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
                                             {
                                                 chk = 0;
                                             }
-                                            arr[friend.x][friend.y] = arr[friendMove.x][friendMove.y]; // 제자리로 원위치
+
+                                            // 제자리로 원위치
+                                            arr[friend.x][friend.y] = arr[friendMove.x][friendMove.y];
                                             arr[friendMove.x][friendMove.y] = prev;
                                         }
                                     }
@@ -896,7 +904,7 @@ int Checkmate(void)
                         }
                     }
 
-                    if (chk) // 아군말로 막을수 있는경우가 하나도 없는경우
+                    if (chk == 1) // 아군말로 막을수 있는경우가 하나도 없는경우
                     {
                         return 1;
                     }
@@ -905,5 +913,66 @@ int Checkmate(void)
             }
         }
     }
+
     return 0; // 모든 공격이 다 막힐수 있을때
+}
+
+
+/**
+    @ 함수 이름: Stalemate
+    @ 함수 설명: 스테일메이트 상황인지를 판별하는 함수
+    @ 파라미터: X
+    @ 참조 함수들: Check
+    @ exception 예외처리: X
+    //
+**/
+int Stalemate(void)
+{
+    xy nowKing = {0, 0};
+    int dir[8][2] = { {1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1} };
+
+    for (int i = 1; i <= 8; i++) // 움직일수 있는 기물이 킹뿐인지 체크
+    {
+        for (int j = 1; j <= 8; j++)
+        {
+            if (arr[i][j].type == KING && arr[i][j].WB == turn[tmp]) // 킹의 위치 저장
+            {
+                nowKing.x = i, nowKing.y = j;
+            }
+            else if (arr[i][j].WB == turn[tmp]) // 다른아군이 있을경우 그 아군이 이동가능하면 탈출
+            {
+                xy curr = {i, j};
+
+                for (int x = 1; x <= 8; x++)
+                {
+                    for (int y = 1; y <= 8; y++)
+                    {
+                        xy next = {x, y};
+
+                        if (Check(curr, next, arr[i][j].type) == 1)
+                        {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < 8; i++) // 킹이 이동가능한 칸이 한칸이라도 있는지 체크
+    {
+        xy kingMove = {nowKing.x + dir[i][0], nowKing.y + dir[i][1]};
+
+        if (kingMove.x < 1 || kingMove.y < 1 || kingMove.x > 8 || kingMove.y > 8)
+        {
+            continue;
+        }
+
+        if (arr[kingMove.x][kingMove.y].WB != turn[tmp] && Check(nowKing, kingMove, KING) == 1)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
 }
