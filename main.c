@@ -878,7 +878,7 @@ int Checkmate(void)
                     {
                         for (int y = 1; y <= 8; y++)
                         {
-                            if (arr[i][j].WB == turn[tmp] && arr[i][j].type != KING) // 자신을 제외한 아군말 위치 체크
+                            if (arr[x][y].WB == turn[tmp] && arr[x][y].type != KING) // 자신을 제외한 아군말 위치 체크
                             {
                                 xy friend={x, y};
 
@@ -887,6 +887,10 @@ int Checkmate(void)
                                     for (int n = 1; n <= 8; n++)
                                     {
                                         xy friendMove = {m, n};
+                                        if (arr[m][n].WB == turn[tmp])
+                                        {
+                                            continue;
+                                        }
 
                                         if ((!(x == m && y == n)) && Check(friend, friendMove, arr[x][y].type) != 0) // 아군의 모든 이동 가능한경우 체크 (제자리 제외)
                                         {
