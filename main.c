@@ -29,7 +29,8 @@ typedef struct UNIT{
 
 UNIT arr[10][10]; // 체스판
 char turn[3] = "WB", player[2][20] = {};
-int tmp = 0; // 턴 표시(1 = 검, 2 = 흰)
+int tmp = 0; // 턴 표시(1 = 검, 0 = 흰)
+int ismove = 0; // 무브함수에서 넘겨진것인지 체크
 
 void Setting(void);
 void Print(void);
@@ -69,11 +70,11 @@ int main(void)
             break;
         }
 
-        while (Move(Scan(), turn[tmp]))
+        while (Move(Scan(), turn[tmp]) == 1)
         {
             ; // NULL
         }
-
+        ismove = 0; // 무브함수 종료 선언
         tmp ^= 1; // 턴이 넘어감
 
         if (Checkmate() == 1)
@@ -119,7 +120,7 @@ void Setting(void)
             arr[i][j].type = arr[i][j].move = arr[i][j].WB = 0;
         }
     }
-
+    
     for (int i = 1; i <= 8; i++)
     {
         arr[2][i].type = arr[7][i].type = PAWN;
@@ -389,8 +390,10 @@ int Check(xy curr, xy next, wchar_t type)
                 }
                 else if (next.x == 3 && arr[next.x + 1][next.y].type == PAWN && arr[next.x + 1][next.y].move == 1 && arr[next.x + 1][next.y].WB == 'B')
                 {
-                    arr[next.x + 1][next.y].move = arr[next.x + 1][next.y].type = arr[next.x + 1][next.y].WB = 0;
-
+                    if (ismove == 1)
+                    {
+                        arr[next.x + 1][next.y].move = arr[next.x + 1][next.y].type = arr[next.x + 1][next.y].WB = 0;
+                    }
                     return 1;
                 }
             }
@@ -416,8 +419,8 @@ int Check(xy curr, xy next, wchar_t type)
                     return 1;
                 }
             }
-        }
-        
+        }        
+
         if (arr[curr.x][curr.y].WB == 'B') // 검은색
         {
             if (next.x - curr.x == 1 && (next.y - curr.y == 1 || next.y - curr.y == -1)) 
@@ -435,7 +438,10 @@ int Check(xy curr, xy next, wchar_t type)
                 }
                 else if (next.x == 6 && arr[next.x - 1][next.y].type == PAWN && arr[next.x - 1][next.y].move == 1 && arr[next.x - 1][next.y].WB == 'W')
                 {
-                    arr[next.x - 1][next.y].move = arr[next.x - 1][next.y].type = arr[next.x - 1][next.y].WB = 0;
+                    if (ismove == 1)
+                    {
+                        arr[next.x - 1][next.y].move = arr[next.x - 1][next.y].type = arr[next.x - 1][next.y].WB = 0;
+                    }
 
                     return 1;
                 }
@@ -746,6 +752,7 @@ int Check(xy curr, xy next, wchar_t type)
 **/
 int Move(xy ab, char c)
 {
+    ismove = 1;
     xy curr = {ab.x / 10, ab.x % 10}, next = {ab.y / 10, ab.y % 10};
 
     if (curr.x < 1 || curr.x > 8 || curr.y < 1 || curr.y > 8 || next.x < 1 || next.x > 8 || next.y < 1 || next.y > 8)
