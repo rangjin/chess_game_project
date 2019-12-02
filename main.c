@@ -900,7 +900,7 @@ int Checkmate(void)
                                             arr[friendMove.x][friendMove.y] = arr[friend.x][friend.y];
                                             arr[friend.x][friend.y].move = arr[friend.x][friend.y].type = arr[friend.x][friend.y].WB = 0; 
 
-                                            if (arr[enemy.x][enemy.y].WB != turn[tmp] && Check(enemy, nowKing, arr[i][j].type) == 0) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
+                                            if (arr[enemy.x][enemy.y].WB == turn[tmp] && Check(enemy, nowKing, arr[i][j].type) == 0) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
                                             {
                                                 chk = 0;
                                             }
