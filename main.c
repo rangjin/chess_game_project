@@ -119,7 +119,16 @@ void Setting(void)
             arr[i][j].type = arr[i][j].move = arr[i][j].WB = 0;
         }
     }
+    /*
+    arr[1][1].type=KING, arr[1][1].WB='B';
+    arr[1][3].type=BISHOP, arr[1][3].WB='B';
+    arr[2][1].type=BISHOP, arr[2][1].WB='B';
+    arr[1][2].type=BISHOP, arr[1][2].WB='B';
 
+    arr[2][4].type=BISHOP, arr[2][4].WB='W';
+
+    arr[8][8].type=KING, arr[8][8].WB='W';
+    */
     for (int i = 1; i <= 8; i++)
     {
         arr[2][i].type = arr[7][i].type = PAWN;
@@ -127,7 +136,6 @@ void Setting(void)
         arr[2][i].WB = arr[1][i].WB = 'B';
         arr[7][i].WB = arr[8][i].WB = 'W';
     }
-    
     wprintf(L"player 1: ");
     scanf("%s", player[0]);
     
@@ -888,7 +896,7 @@ int Checkmate(void)
                                             arr[friendMove.x][friendMove.y] = arr[friend.x][friend.y];
                                             arr[friend.x][friend.y].move = arr[friend.x][friend.y].type = arr[friend.x][friend.y].WB = 0; 
 
-                                            if (Check(enemy, nowKing, arr[i][j].type) == 0) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
+                                            if (arr[enemy.x][enemy.y].WB == turn[tmp] && Check(enemy, nowKing, arr[i][j].type) == 0) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
                                             {
                                                 chk = 0;
                                             }
