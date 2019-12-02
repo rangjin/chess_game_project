@@ -29,7 +29,7 @@ typedef struct UNIT{
 
 UNIT arr[10][10]; // 체스판
 char turn[3] = "WB", player[2][20] = {};
-int tmp = 0; // 턴 표시(1 = 검, 2 = 흰)
+int tmp = 0; // 턴 표시(1 = 검, 0 = 흰)
 int ismove = 0; // move함수 안인지 체크
 
 void Setting(void);
@@ -377,7 +377,7 @@ int Check(xy curr, xy next, wchar_t type)
         if (arr[curr.x][curr.y].WB == 'W') // 흰색
         {
         
-            if (next.x - curr.x == -1 && (next.y - curr.y == 1 || next.y - curr.y == -1))
+            if (next.x - curr.x == -1 && abs(next.y - curr.y) == 1)
             {
                 if (arr[next.x][next.y].WB == 'B')
                 {
@@ -390,7 +390,7 @@ int Check(xy curr, xy next, wchar_t type)
                         return 1;
                     }
                 }
-                else if (next.x == 3 && arr[next.x + 1][next.y].type == PAWN && arr[next.x + 1][next.y].move == 1 && arr[next.x + 1][next.y].WB == 'B')
+                else if (next.x == 3 && arr[next.x + 1][next.y].type == PAWN && arr[next.x + 1][next.y].move == 1 && arr[next.x + 1][next.y].WB == 'B') // 앙파상
                 {
                     if (ismove == 1)
                     {
@@ -412,7 +412,7 @@ int Check(xy curr, xy next, wchar_t type)
 
             if (next.x - curr.x == -1 && curr.y == next.y)
             {
-                if (next.x == 1)
+                if (next.x == 1) // 승급
                 {
                     return 2;
                 }
@@ -425,11 +425,11 @@ int Check(xy curr, xy next, wchar_t type)
         
         if (arr[curr.x][curr.y].WB == 'B') // 검은색
         {
-            if (next.x - curr.x == 1 && (next.y - curr.y == 1 || next.y - curr.y == -1)) 
+            if (next.x - curr.x == 1 && abs(next.y - curr.y) == 1) 
             {
                 if (arr[next.x][next.y].WB == 'W')
                 {
-                    if (next.x == 8)
+                    if (next.x == 8) // 승급
                     {
                         return 2;
                     }
@@ -438,7 +438,7 @@ int Check(xy curr, xy next, wchar_t type)
                         return 1;
                     }
                 }
-                else if (next.x == 6 && arr[next.x - 1][next.y].type == PAWN && arr[next.x - 1][next.y].move == 1 && arr[next.x - 1][next.y].WB == 'W')
+                else if (next.x == 6 && arr[next.x - 1][next.y].type == PAWN && arr[next.x - 1][next.y].move == 1 && arr[next.x - 1][next.y].WB == 'W') // 앙파상
                 {
                     if (ismove == 1)
                     {
@@ -461,7 +461,7 @@ int Check(xy curr, xy next, wchar_t type)
 
             if (next.x-curr.x == 1 && curr.y == next.y)
             {
-                if(next.x == 8)
+                if(next.x == 8) // 승급
                 {
                     return 2;
                 }
@@ -638,7 +638,7 @@ int Check(xy curr, xy next, wchar_t type)
             }
         }
 
-        if (curr.x == next.x && arr[curr.x][curr.y].move == 0) // 킹이 좌우로 움직이고 킹이 이동한 적이 없을 때
+        if (curr.x == next.x && arr[curr.x][curr.y].move == 0 && abs(curr.y - next.y) == 2) // 킹이 좌우로 움직이고 킹이 이동한 적이 없을 때
         {
             UNIT prev = arr[next.x][next.y];
             arr[next.x][next.y] = arr[curr.x][curr.y];
@@ -888,7 +888,7 @@ int Checkmate(void)
                                             arr[friendMove.x][friendMove.y] = arr[friend.x][friend.y];
                                             arr[friend.x][friend.y].move = arr[friend.x][friend.y].type = arr[friend.x][friend.y].WB = 0; 
 
-                                            if (!Check(enemy, nowKing, arr[i][j].type)) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
+                                            if (Check(enemy, nowKing, arr[i][j].type) == 0) // 다시 적군말이 킹을 공격할수 있는지 확인후 불가능하게 바뀌었을때
                                             {
                                                 chk = 0;
                                             }
@@ -1010,6 +1010,7 @@ int Checkmove(xy curr, xy next, wchar_t type){
 
     if (chk == 1)
     {
+        chk = 0;
         UNIT prev = arr[next.x][next.y];
         arr[next.x][next.y] = arr[curr.x][curr.y];
         arr[curr.x][curr.y].move = arr[curr.x][curr.y].type = arr[curr.x][curr.y].WB = 0;
