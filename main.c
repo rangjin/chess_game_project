@@ -30,6 +30,7 @@ typedef struct UNIT{
 UNIT arr[10][10]; // 체스판
 char turn[3] = "WB", player[2][20] = {};
 int tmp = 1; // 턴 표시(1 = 검, 2 = 흰)
+int ismove = 0; // move함수 안인지 체크
 
 void Setting(void);
 void Print(void);
